@@ -143,17 +143,6 @@ footer{max-width:680px;margin:0 auto;padding:0 20px 40px;color:var(--muted);font
   <!-- QUESTIONS are generated -->
   <div id="questions"></div>
 
-  <!-- FINAL: one optional question. No email needed to see the score -->
-  <section class="screen" data-s="final">
-    <p class="qnum">Last step</p>
-    <p class="q">In one sentence, what would you tell someone entering IT today?</p>
-    <p class="help">Optional. We may quote it anonymously in the report. Your score is on the next screen either way, no email needed.</p>
-    <div class="field">
-      <textarea id="advice" placeholder="Skip this if you would rather go straight to your score."></textarea>
-    </div>
-    <div class="nav"><button class="btn" data-back>Back</button><button class="btn primary" id="toScore">Show me my score →</button></div>
-  </section>
-
   <!-- CALCULATING -->
   <section class="screen" data-s="wait">
     <div class="calc-wait"><div class="spin"></div><p class="lede muted">Scoring your answers against the occupational data…</p></div>
@@ -248,7 +237,7 @@ var QUESTIONS = [
   {key:'next',type:'check',q:'If time and budget were not a problem, which skill would you invest in next?',help:'Choose up to two.',opts:OPT.next,max:2}
 ];
 
-var A = {tasks:[],training:[],next:[]};
+var A = {tasks:[],training:[],next:[],advice:''};
 var params = new URLSearchParams(location.search);
 var SOURCE = params.get('utm_source') || params.get('src') || (document.referrer ? 'ref:' + document.referrer.replace(/^https?:\/\//,'').split('/')[0] : 'direct');
 var CAMPAIGN = params.get('utm_campaign') || params.get('utm_medium') || '';
@@ -263,7 +252,7 @@ QUESTIONS.forEach(function(Qd, i){
     '<p class="q">'+Qd.q+'</p>' + (Qd.help ? '<p class="help">'+Qd.help+'</p>' : '') +
     '<div class="'+(Qd.type==='scale'?'scale':'opts')+'" id="opts-'+Qd.key+'"></div>' +
     '<p class="err" id="err-'+Qd.key+'">Please pick an answer to continue.</p>' +
-    '<div class="nav"><button class="btn" data-back type="button">Back</button><button class="btn primary" data-next type="button">Next →</button></div>';
+    '<div class="nav"><button class="btn" data-back type="button">Back</button><button class="btn primary" data-next type="button">'+(i===QUESTIONS.length-1 ? 'Show me my score →' : 'Next →')+'</button></div>';
   qWrap.appendChild(s);
   if (!Qd.branch) renderOpts(Qd);
 });
@@ -306,12 +295,12 @@ buildTasks();
 if (PREROLE!==undefined){ var r=document.querySelector('input[name="role"][value="'+PREROLE+'"]'); if(r){ r.checked=true; A.role=ROLES[PREROLE]; buildTasks(); } }
 
 // ---------- navigation
-var order = ['intro'].concat(QUESTIONS.map(function(_,i){return 'q'+i;})).concat(['final','wait','result']);
+var order = ['intro'].concat(QUESTIONS.map(function(_,i){return 'q'+i;})).concat(['wait','result']);
 var cur = 0;
 function show(name){
   cur = order.indexOf(name);
   document.querySelectorAll('.screen').forEach(function(s){ s.classList.toggle('active', s.dataset.s===name); });
-  var qi = name.indexOf('q')===0 ? +name.slice(1) : (name==='final' ? QUESTIONS.length : -1);
+  var qi = name.indexOf('q')===0 ? +name.slice(1) : -1;
   var prog=document.getElementById('prog');
   var bar=document.getElementById('progBar');
   if (qi>=0){ prog.hidden=false; document.getElementById('progText').textContent=Math.min(qi+1,QUESTIONS.length)+' of '+QUESTIONS.length;
@@ -325,7 +314,12 @@ function valid(i){
   document.getElementById('err-'+Qd.key).style.display = ok ? 'none' : 'block';
   return ok;
 }
-function next(){ var name=order[cur]; if(name.indexOf('q')===0 && !valid(+name.slice(1))) return; show(order[cur+1]); }
+function next(){
+  var name=order[cur];
+  if(name.indexOf('q')===0 && !valid(+name.slice(1))) return;
+  if(name==='q'+(QUESTIONS.length-1)) return toScore();
+  show(order[cur+1]);
+}
 document.getElementById('start').addEventListener('click',function(){ show(A.role ? 'q1' : 'q0'); });
 document.querySelectorAll('[data-next]').forEach(function(b){ b.addEventListener('click',next); });
 document.querySelectorAll('[data-back]').forEach(function(b){ b.addEventListener('click',function(){ show(order[Math.max(cur-1,0)]); }); });
@@ -437,12 +431,11 @@ function relock(){
   document.getElementById('locked').classList.add('is-locked');
   document.getElementById('gate').hidden = false;
 }
-document.getElementById('toScore').addEventListener('click', function(){
-  A.advice = document.getElementById('advice').value.trim();
+function toScore(){
   var s = computeScore(A);
   show('wait');
   setTimeout(function(){ renderResult(s); show('result'); }, 1400);
-});
+}
 
 // ---------- step two: the breakdown and the report, in exchange for an email
 document.getElementById('submit').addEventListener('click', function(){
