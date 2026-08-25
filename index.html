@@ -20,6 +20,9 @@
   --shadow:0 1px 2px rgba(28,22,19,.06),0 10px 30px rgba(28,22,19,.08);
 }
 *{box-sizing:border-box}
+/* .sample-note and .gate set display, which beats the UA rule for [hidden]. Without this
+   the sample banner renders on a real result and tells people their score is a sample. */
+[hidden]{display:none !important}
 html,body{margin:0;background:var(--ground);color:var(--ink);font-family:'Public Sans',system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
 a{color:var(--accent)}
 .top{position:relative;background:var(--dark);color:var(--dark-ink);padding:14px 20px 17px;display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -82,14 +85,14 @@ input[type=email]:focus,textarea:focus{outline:2px solid var(--accent);outline-o
 .consent input{accent-color:var(--accent);width:18px;height:18px;flex:0 0 auto;margin-top:2px}
 .err{color:var(--high);font-size:14px;margin:8px 0 0;display:none}
 /* result */
-.reveal{text-align:center;padding:10px 0 6px}
+.reveal{text-align:center;padding:6px 0 2px}
 .reveal .label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--muted)}
 .reveal .score{font-family:'Fraunces',Georgia,serif;font-size:clamp(72px,16vw,120px);font-weight:700;line-height:1;letter-spacing:-.03em;margin:6px 0 0;font-variant-numeric:tabular-nums}
 .reveal .of{font-size:15px;color:var(--muted);margin:2px 0 10px}
 .reveal .band{display:inline-block;font-family:'Fraunces',Georgia,serif;font-size:24px;font-weight:700;padding:6px 16px;border-radius:999px}
 .band .bemo{margin-right:9px;font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-size:.85em;vertical-align:.04em}
 .band.High{background:var(--high-soft);color:var(--high)} .band.Moderate{background:#FBF3E4;color:var(--mid)} .band.Low{background:var(--low-soft);color:var(--low)}
-.meter{height:10px;border-radius:5px;background:linear-gradient(90deg,#0B7A57 0%,#B37A12 50%,#B4432E 100%);position:relative;margin:22px 0 6px}
+.meter{height:10px;border-radius:5px;margin-top:4px;background:linear-gradient(90deg,#0B7A57 0%,#B37A12 50%,#B4432E 100%);position:relative;margin:22px 0 6px}
 .meter b{position:absolute;top:-6px;width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--ink);transform:translateX(-50%);left:0;transition:left 1.2s cubic-bezier(.2,.8,.2,1)}
 .meter-l{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:18px}
 .block{border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:14px 0}
@@ -99,7 +102,7 @@ input[type=email]:focus,textarea:focus{outline:2px solid var(--accent);outline-o
 .block.calc{color:var(--muted);font-size:14px;background:var(--ground)}
 .block.path{border-color:var(--accent-line);background:var(--accent-soft)}
 .block.path .soft{color:var(--muted);font-size:14px}
-.gate{border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:14px;padding:22px 24px;margin:18px 0}
+.gate{border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:14px;padding:20px 24px;margin:14px 0 18px}
 .gate h3{font-family:'Fraunces',Georgia,serif;font-size:clamp(19px,2.6vw,23px);font-weight:700;margin:0 0 6px;text-align:center}
 .gate .sub{color:var(--muted);font-size:14px;margin:0 0 16px;text-align:center;max-width:52ch;margin-left:auto;margin-right:auto}
 .gate .row{display:flex;gap:10px;flex-wrap:wrap}
@@ -160,14 +163,9 @@ footer{max-width:680px;margin:0 auto;padding:0 20px 40px;color:var(--muted);font
       <div class="of">out of 100</div>
       <span class="band" id="rBand"></span>
     </div>
-    <div class="meter"><b id="rPin"></b></div>
-    <div class="meter-l"><span>Hard to replace</span><span>Moderate</span><span>Easy to replace</span></div>
-    <div class="block"><p id="rBandLine"></p></div>
-    <div class="block calc" id="rCalc"></div>
-
     <div class="gate" id="gate">
       <h3>Your full breakdown is ready.</h3>
-      <p class="sub">Enter your email to unlock what pushed your score up, the skill that would make you hard to replace, and the full report before it is published.</p>
+      <p class="sub">What pushed your score up, the skill that would make you hard to replace, and the report before it is published.</p>
       <div class="row">
         <input type="email" id="email" placeholder="you@company.com" autocomplete="email" required>
         <button class="btn primary" id="submit" type="button">Unlock my results →</button>
@@ -178,6 +176,10 @@ footer{max-width:680px;margin:0 auto;padding:0 20px 40px;color:var(--muted);font
     </div>
 
     <div id="locked" class="locked is-locked">
+      <div class="meter"><b id="rPin"></b></div>
+      <div class="meter-l"><span>Hard to replace</span><span>Moderate</span><span>Easy to replace</span></div>
+      <div class="block"><p id="rBandLine"></p></div>
+      <div class="block calc" id="rCalc"></div>
       <div class="block"><p id="rDrivers"></p></div>
       <div class="block path"><h3>What would make you hard to replace</h3><p id="rPathIntro"></p><p id="rPath"></p><p class="soft" id="rSoft"></p></div>
       <div class="block"><h3>What happens next</h3><p>Once enough IT professionals have answered, you'll get a second email comparing your score with people in your role, and the full report before it's published.</p></div>
