@@ -235,6 +235,26 @@ var PATHS = {
 var ROLE_DEFAULT_PATH = { 'Software development': 1, 'Cloud and infrastructure': 3, 'Cyber security': 2, 'IT support and operations': 0, 'Data and AI': 4, 'IT management or leadership': 5, 'Other': 0 };
 var PRODUCT_LINK = 'https://platform.readynez.com/products/unlimited-ai-copilot-training';
 
+// The two personalised lines. Shared by the result email and the 'Web responses' tab,
+// so Dynamics 365 can merge them straight from the sheet instead of recomputing them.
+function driverLine_(s) {
+  var drivers = [];
+  if (s.trainingP >= 6) drivers.push('no structured AI training in the last 12 months');
+  if (s.planP >= 5) drivers.push('an employer with no plan for what your role becomes');
+  if (s.knowP >= 4) drivers.push('not being sure which AI skills matter for your role');
+  if (s.overrates) drivers.push('rating your AI skills above average without training to back it');
+  if (s.speedP >= 3) drivers.push('expecting AI to change your work later than the evidence suggests');
+  if (s.exposure >= 15) drivers.push('AI already handling a large share of your tasks');
+  return drivers.length ? 'What pushed your score up: ' + drivers.slice(0, 3).join('; ') + '.' : 'What kept your score down: you use AI regularly, you have trained properly, and you know where it is going.';
+}
+function pathFor_(a) {
+  var role = ROLE_BASELINE[a.role] !== undefined ? a.role : 'Other';
+  var pick = null;
+  (a.next || []).forEach(function(t) { var i = OPT.next.indexOf(t); if (pick === null && i >= 0 && i < 7) pick = i; });
+  if (pick === null) pick = ROLE_DEFAULT_PATH[role];
+  return PATHS[pick];
+}
+
 function buildResultEmail(a, s) {
   var role = ROLE_BASELINE[a.role] !== undefined ? a.role : 'Other';
   var bandLine = {
@@ -243,20 +263,8 @@ function buildResultEmail(a, s) {
     'Low': 'Either AI has not reached much of your work yet, or you have already built the skills around it. Your position is harder to replace than most, for now. The number to watch is how fast that changes.'
   }[s.band];
 
-  // the three biggest drivers, in plain words
-  var drivers = [];
-  if (s.trainingP >= 6) drivers.push('no structured AI training in the last 12 months');
-  if (s.planP >= 5) drivers.push('an employer with no plan for what your role becomes');
-  if (s.knowP >= 4) drivers.push('not being sure which AI skills matter for your role');
-  if (s.overrates) drivers.push('rating your AI skills above average without training to back it');
-  if (s.speedP >= 3) drivers.push('expecting AI to change your work later than the evidence suggests');
-  if (s.exposure >= 15) drivers.push('AI already handling a large share of your tasks');
-  var driverLine = drivers.length ? 'What pushed your score up: ' + drivers.slice(0, 3).join('; ') + '.' : 'What kept your score down: you use AI regularly, you have trained properly, and you know where it is going.';
-
-  var pick = null;
-  (a.next || []).forEach(function(t) { var i = OPT.next.indexOf(t); if (pick === null && i >= 0 && i < 7) pick = i; });
-  if (pick === null) pick = ROLE_DEFAULT_PATH[role];
-  var path = PATHS[pick];
+  var driverLine = driverLine_(s);
+  var path = pathFor_(a);
 
   var subject = 'Your AI Replaceability Score: ' + s.total + ' out of 100 (' + s.band + ')';
   var html =
@@ -335,6 +343,8 @@ function resendFailed() {
 // =====================================================================
 // 5. WEB ENDPOINT for the hosted page (Deploy > New deployment > Web app,
 //    Execute as: Me, Who has access: Anyone). Paste the /exec URL into index.html.
+//    This path stores the answers only. It sends no email. Export 'Web responses'
+//    into Dynamics 365 Marketing and send the result from there.
 // =====================================================================
 function doPost(e) {
   var out = { ok: false };
@@ -350,21 +360,15 @@ function doPost(e) {
     // 1) store the full response in its own tab
     var ss = SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty('SHEET_ID'));
     var sh = ss.getSheetByName('Web responses') || ss.insertSheet('Web responses');
-    if (sh.getLastRow() === 0) sh.appendRow(['Timestamp','Email','Consent','Role','Years','Share of week','Tasks AI does well','Job change','Usage','Training','Knows skills','Employer plan','Worry (1-5)','Self-rating','Expected speed','Skill next','Advice','Score','Band','Baseline','Exposure','Gaps','Complacency','Source','Campaign','Page']);
-    sh.appendRow([new Date(), a.email, a.consent ? 'yes' : 'no', a.role || '', a.years || '', a.share || '', a.tasks.join('; '), a.change || '', a.usage || '', a.training.join('; '), a.know || '', a.plan || '', a.worry || '', a.selfrate || '', a.speed || '', a.next.join('; '), a.advice || '', s.total, s.band, s.baseline, s.exposure, s.gaps, s.complacency, body.source || '', body.campaign || '', body.page || '']);
+    if (sh.getLastRow() === 0) sh.appendRow(['Timestamp','Email','Consent','Role','Years','Share of week','Tasks AI does well','Job change','Usage','Training','Knows skills','Employer plan','Worry (1-5)','Self-rating','Expected speed','Skill next','Advice','Score','Band','Baseline','Exposure','Gaps','Complacency','Drivers','Learning path','Learning path detail','Source','Campaign','Page']);
+    var path = pathFor_(a);
+    sh.appendRow([new Date(), a.email, a.consent ? 'yes' : 'no', a.role || '', a.years || '', a.share || '', a.tasks.join('; '), a.change || '', a.usage || '', a.training.join('; '), a.know || '', a.plan || '', a.worry || '', a.selfrate || '', a.speed || '', a.next.join('; '), a.advice || '', s.total, s.band, s.baseline, s.exposure, s.gaps, s.complacency, driverLine_(s), path[0], path[1], body.source || '', body.campaign || '', body.page || '']);
 
-    // 2) email the result (same email as the form path)
-    var mail = buildResultEmail(a, s);
-    var opts = { htmlBody: mail.html, name: SENDER_NAME };
-    if (REPLY_TO) opts.replyTo = REPLY_TO;
-    try {
-      MailApp.sendEmail(a.email, mail.subject, 'Your AI Replaceability Score is ' + s.total + ' out of 100 (' + s.band + ').', opts);
-      logScore(a.email, s, 'sent (web)');
-      out.emailed = true;
-    } catch (err) {
-      logScore(a.email, s, 'FAILED (web): ' + err);
-      out.emailed = false;
-    }
+    // 2) the hosted page does NOT email. The visitor reads the score on screen, and
+    //    Readynez mails the copy from Dynamics 365 Marketing after exporting this tab.
+    //    That is what lifts the 100 a day MailApp cap off the campaign. See the README.
+    logScore(a.email, s, 'saved (web, emailed by D365)');
+    out.emailed = false;
     out.ok = true; out.score = s.total; out.band = s.band;
   } catch (err) {
     out.error = String(err);
