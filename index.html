@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>How easily could AI replace you? The AI Replaceability Check</title>
-<meta name="description" content="41% of employers plan to cut jobs where AI can do the work. Get your AI Replaceability Score in 3 minutes: how easily AI could do your job today, and what would make you hard to replace.">
+<meta name="description" content="Most IT professionals assume it is someone else's job on the line. Get your AI Replaceability Score from 0 to 100 in about 4 minutes, and see the two or three gaps that matter most.">
 <meta property="og:title" content="How easily could AI replace you? Find out before your employer does.">
-<meta property="og:description" content="13 questions, 3 minutes. Your AI Replaceability Score, and what would make you hard to replace.">
+<meta property="og:description" content="16 questions, about 4 minutes. Your AI Replaceability Score from 0 to 100, and the gaps that matter most.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Public+Sans:wght@400;500;600;700&display=swap">
 <style>
@@ -89,9 +89,11 @@ input[type=email]:focus,textarea:focus{outline:2px solid var(--accent);outline-o
 .reveal .label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--muted)}
 .reveal .score{font-family:'Fraunces',Georgia,serif;font-size:clamp(72px,16vw,120px);font-weight:700;line-height:1;letter-spacing:-.03em;margin:6px 0 0;font-variant-numeric:tabular-nums}
 .reveal .of{font-size:15px;color:var(--muted);margin:2px 0 10px}
-.reveal .band{display:inline-block;font-family:'Fraunces',Georgia,serif;font-size:24px;font-weight:700;padding:6px 16px;border-radius:999px}
+.reveal .band{display:inline-block;font-size:clamp(15px,2.2vw,17px);font-weight:700;line-height:1.35;padding:10px 22px;border-radius:999px;border:1px solid transparent;max-width:100%;text-wrap:balance}
 .band .bemo{margin-right:9px;font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-size:.85em;vertical-align:.04em}
-.band.High{background:var(--high-soft);color:var(--high)} .band.Moderate{background:#FBF3E4;color:var(--mid)} .band.Low{background:var(--low-soft);color:var(--low)}
+.band.High{background:var(--high-soft);color:var(--high);border-color:var(--high)}
+.band.Moderate{background:#FBF3E4;color:var(--mid);border-color:var(--mid)}
+.band.Low{background:var(--low-soft);color:var(--low);border-color:var(--low)}
 .meter{height:10px;border-radius:5px;margin-top:4px;background:linear-gradient(90deg,#0B7A57 0%,#B37A12 50%,#B4432E 100%);position:relative;margin:22px 0 6px}
 .meter b{position:absolute;top:-6px;width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--ink);transform:translateX(-50%);left:0;transition:left 1.2s cubic-bezier(.2,.8,.2,1)}
 .meter-l{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:18px}
@@ -102,6 +104,50 @@ input[type=email]:focus,textarea:focus{outline:2px solid var(--accent);outline-o
 .block.calc{color:var(--muted);font-size:14px;background:var(--ground)}
 .block.path{border-color:var(--accent-line);background:var(--accent-soft)}
 .block.path .soft{color:var(--muted);font-size:14px}
+.gauge{position:relative;width:186px;height:186px;margin:8px auto 16px}
+.gauge svg{width:100%;height:100%;transform:rotate(-90deg);display:block}
+.g-track{fill:none;stroke:var(--line);stroke-width:9}
+.g-arc{fill:none;stroke-width:9;stroke-linecap:round;stroke-dasharray:327;stroke-dashoffset:327;transition:stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)}
+.g-arc.High{stroke:var(--high)} .g-arc.Moderate{stroke:var(--mid)} .g-arc.Low{stroke:var(--low)}
+@media (prefers-reduced-motion:reduce){.g-arc{transition:none}}
+.g-mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.g-num{font-family:'Fraunces',Georgia,serif;font-size:56px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.g-of{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:14px;color:var(--muted);margin-top:3px}
+.verdict{font-size:16px;line-height:1.55;margin:16px 0 0;text-align:center;text-wrap:pretty}
+.sect{font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted);margin:24px 0 11px}
+.exposure{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:560px){.exposure{grid-template-columns:1fr}}
+.ex{border:1px solid var(--line);border-left:4px solid var(--line);border-radius:10px;padding:13px 15px;background:var(--surface)}
+.ex .exhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.ex .exname{font-weight:700;font-size:15px}
+.ex .expct{font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
+.ex .exsub{font-size:12px;color:var(--muted);margin:3px 0 9px}
+.ex .exbar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.ex .exbar i{display:block;height:100%;width:0;border-radius:3px;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.ex.hot{border-left-color:var(--high)} .ex.hot .exbar i{background:var(--high)}
+.ex.warm{border-left-color:var(--mid)} .ex.warm .exbar i{background:var(--mid)}
+.ex.cool{border-left-color:var(--low)} .ex.cool .exbar i{background:var(--low)}
+.stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0 0}
+.st{border:1px solid var(--line);border-radius:10px;padding:14px 6px;text-align:center;background:var(--ground)}
+.st b{display:block;font-family:'Fraunces',Georgia,serif;font-size:26px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.st b i{font-style:normal;font-size:13px;color:var(--muted)}
+.st span{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-top:6px;line-height:1.25}
+.parts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 0 4px}
+@media (max-width:560px){.parts{grid-template-columns:repeat(2,1fr)}}
+.part{border:1px solid var(--line);border-radius:10px;padding:12px 8px;text-align:center;background:var(--surface)}
+.part b{display:block;font-family:'Fraunces',Georgia,serif;font-size:23px;font-weight:700;line-height:1}
+.part b i{font-style:normal;font-size:13px;color:var(--muted);font-weight:500}
+.part span{display:block;font-size:12px;color:var(--muted);margin-top:6px;line-height:1.25}
+.drivers{margin:0;padding:0 0 0 20px}
+.drivers li{margin:0 0 6px}
+.drivers li:last-child{margin:0}
+.lead-sm{color:var(--muted);font-size:14px;margin:0 0 8px}
+details.calcbox{border:1px solid var(--line);border-radius:12px;background:var(--ground);margin:14px 0}
+details.calcbox summary{cursor:pointer;padding:13px 18px;font-size:14px;font-weight:600;color:var(--muted);list-style:none}
+details.calcbox summary::-webkit-details-marker{display:none}
+details.calcbox summary::before{content:'\25B8  '}
+details[open].calcbox summary::before{content:'\25BE  '}
+details.calcbox p{margin:0;padding:0 18px 16px;font-size:13px;color:var(--muted)}
 .gate{border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:14px;padding:20px 24px;margin:14px 0 18px}
 .gate h3{font-family:'Fraunces',Georgia,serif;font-size:clamp(19px,2.6vw,23px);font-weight:700;margin:0 0 6px;text-align:center}
 .gate .sub{color:var(--muted);font-size:14px;margin:0 0 16px;text-align:center;max-width:52ch;margin-left:auto;margin-right:auto}
@@ -132,13 +178,13 @@ footer{max-width:680px;margin:0 auto;padding:0 20px 40px;color:var(--muted);font
 
   <!-- INTRO -->
   <section class="screen active" data-s="intro">
-    <p class="eyebrow">For IT professionals</p>
-    <span class="pill">Free · 3 minutes · 13 questions</span>
+    <p class="eyebrow">The AI Replaceability Check · For IT professionals</p>
+    <span class="pill">Free · 4 minutes · No account</span>
     <h1>How easily could AI <em>replace</em> you?</h1>
-    <p class="deck">Find out before your employer does, and make AI work for you instead of against you.</p>
-    <p class="lede">41% of employers plan to cut jobs where AI can do the work. 92 million roles will be displaced by 2030, and 40% of the skills in yours will change. Microsoft's own research already puts web developers and data scientists among the 40 occupations most exposed to AI.</p>
-    <p class="lede">Most IT professionals assume it's someone else's role.</p>
-    <div class="stats"><span><b>13</b>questions</span><span><b>3</b>minutes</span><span><b>0-100</b>score, on screen</span><span><b>1</b>report, before it's published</span></div>
+    <p class="deck">Most IT professionals assume it's someone else's job on the line. The numbers say otherwise.</p>
+    <p class="lede">Microsoft's own research puts web developers and data scientists among the 40 occupations most exposed to AI. 41% of employers plan to cut roles where AI can do the work, and 92 million jobs will be displaced by 2030. 40% of the skills in a typical IT role will change in the same window.</p>
+    <p class="lede">Answer <span id="qCount">16</span> questions about your role, your week, and your training. You'll get an AI Replaceability Score from 0 to 100 on screen, plus the two or three gaps that matter most.</p>
+    <p class="lede muted" id="closes"></p>
     <div class="cta"><button class="btn primary" id="start">Show me how replaceable I am →</button><button class="btn" id="seeSample" type="button">See a sample result</button></div>
     <p class="fine">No account. Your individual answers are never shared. Sources: World Economic Forum, Future of Jobs Report 2025; Microsoft Research, Working with AI (2025).</p>
   </section>
@@ -159,9 +205,15 @@ footer{max-width:680px;margin:0 auto;padding:0 20px 40px;color:var(--muted);font
     </div>
     <div class="reveal">
       <div class="label">Your AI Replaceability Score</div>
-      <div class="score" id="rScore">0</div>
-      <div class="of">out of 100</div>
+      <div class="gauge">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="g-track" cx="60" cy="60" r="52"></circle>
+          <circle class="g-arc" id="rArc" cx="60" cy="60" r="52"></circle>
+        </svg>
+        <div class="g-mid"><span class="g-num" id="rScore">0</span><span class="g-of">/100</span></div>
+      </div>
       <span class="band" id="rBand"></span>
+      <p class="verdict" id="rBandLine"></p>
     </div>
     <div class="gate" id="gate">
       <h3>Your full breakdown is ready.</h3>
@@ -176,13 +228,13 @@ footer{max-width:680px;margin:0 auto;padding:0 20px 40px;color:var(--muted);font
     </div>
 
     <div id="locked" class="locked is-locked">
-      <div class="meter"><b id="rPin"></b></div>
-      <div class="meter-l"><span>Hard to replace</span><span>Moderate</span><span>Easy to replace</span></div>
-      <div class="block"><p id="rBandLine"></p></div>
-      <div class="block calc" id="rCalc"></div>
-      <div class="block"><p id="rDrivers"></p></div>
-      <div class="block path"><h3>What would make you hard to replace</h3><p id="rPathIntro"></p><p id="rPath"></p><p class="soft" id="rSoft"></p></div>
-      <div class="block"><h3>What happens next</h3><p>Once enough IT professionals have answered, you'll get a second email comparing your score with people in your role, and the full report before it's published.</p></div>
+      <p class="sect" id="rSect">Where you're most exposed</p>
+      <div class="exposure" id="rExposure"></div>
+      <div class="stats3" id="rStats"></div>
+      <div class="block"><h3 id="rDriversHead"></h3><ul class="drivers" id="rDrivers"></ul></div>
+      <details class="calcbox"><summary>How this was calculated</summary><p id="rCalc"></p></details>
+      <div class="block path"><h3>What to learn next</h3><p class="lead-sm" id="rPathIntro"></p><p id="rPath"></p><p class="soft" id="rSoft"></p></div>
+      <div class="block"><h3>What happens next</h3><p>You'll get the full report before it's published, plus how your score compares with others in your role.</p></div>
     </div>
     <p class="status" id="rStatus"></p>
   </section>
@@ -196,11 +248,14 @@ footer{max-width:680px;margin:0 auto;padding:0 20px 40px;color:var(--muted);font
 // CONFIG: paste the Apps Script web app URL (Deploy > New deployment > Web app) here
 var ENDPOINT = 'https://script.google.com/macros/s/AKfycbyRVM0z3cJhCq2K37n3Cu2TTTtTjrW4nlWkf5W2BlSLrkJfdAEJPL8qSGNqW3ajjlM/exec';
 var PRODUCT_LINK = 'https://platform.readynez.com/products/unlimited-ai-copilot-training';
+// Closing date shown on the intro, for example '30 September'. Leave blank and the
+// sentence simply drops the deadline rather than printing a placeholder.
+var CLOSE_DATE = '';
 // =====================================================================
 
 var ROLES = ['Software development','Cloud and infrastructure','Cyber security','IT support and operations','Data and AI','IT management or leadership','Other'];
 var ROLE_KEYS = {dev:0,software:0,cloud:1,infra:1,security:2,cyber:2,support:3,ops:3,data:4,ai:4,management:5,manager:5,leadership:5,other:6};
-var ROLE_BASELINE = {'Software development':22,'Cloud and infrastructure':17,'Cyber security':15,'IT support and operations':24,'Data and AI':22,'IT management or leadership':16,'Other':18};
+var ROLE_BASELINE = {'Software development':9,'Cloud and infrastructure':7,'Cyber security':6,'IT support and operations':10,'Data and AI':9,'IT management or leadership':7,'Other':8};
 var ROLE_TASKS = {
   'Software development':['Writing routine code','Explaining or reviewing code','Writing tests','Debugging','Documentation','Refactoring','Architecture and design decisions'],
   'Cloud and infrastructure':['Writing scripts and infrastructure code','Troubleshooting incidents','Monitoring and alert triage','Runbooks and documentation','Cost and capacity analysis','Architecture and design'],
@@ -212,30 +267,36 @@ var ROLE_TASKS = {
 };
 var NONE_YET = 'None of these yet';
 var OPT = {
-  years:['Under 2','2 to 5','6 to 10','11 to 20','More than 20'],
   share:['None','Under 10%','10 to 25%','25 to 50%','More than 50%'],
-  change:['My job is basically the same','I use AI, but my role has not changed','Routine tasks moved to AI and I do different work now','My team has shrunk or hiring has slowed','My role has grown because I am the one who knows AI'],
-  usage:['Never','Now and then','Most weeks','Every day'],
-  training:['Nothing yet','Experimented with AI tools on my own','Free tutorials or videos','A paid online course','An instructor-led course or certification','Training my employer provided','Learned from colleagues'],
-  know:['Yes, clearly','Roughly','Not really'],
+  complexity:['I mostly follow established processes to complete clearly defined tasks','I mostly execute defined technical work, but regularly need judgment to handle exceptions','I regularly diagnose problems where the cause or solution is not obvious','I design solutions and make technical decisions where there are several possible approaches','I mainly decide what problems should be solved, set direction, or take responsibility for outcomes'],
+  agent:['Yes, and I use it regularly','Yes, I built something but it did not stick','No, but I know roughly how I would','No'],
+  pays:['I pay for a plan out of my own pocket','My employer pays for a plan I actually use','I only use the free tiers','I do not really use AI tools'],
+  validate:['I generally use the output if it looks reasonable','I review it manually and make corrections','I test or validate it against the requirements before using it','I challenge the output, test assumptions and verify important parts independently','It depends on the risk. Low-risk work gets lighter checking, important work gets rigorous validation','I do not use AI to produce work like this'],
+  think:['Yes, and I spend it on harder problems that never got attention before','Yes, but it filled up with more of the same kind of work','No, my workload just went up','AI has not really changed how my time is spent'],
+  escalate:['I am usually the final escalation point','Often','Sometimes','Rarely','Never'],
+  domain:['A lot. I know the rules, constraints and edge cases of my industry','Some. It helps, but most of my work would transfer elsewhere','Very little. My work is much the same whichever industry I am in'],
+  account:['Yes. Work does not ship without my approval','Sometimes. I sign off on some things','No. My work is checked by someone else, or by nobody'],
+  training:['Nothing','Only free tutorials and videos','I paid for a course myself','My employer paid for structured training','I hold an AI certification'],
   plan:['Yes, a clear plan with training','Some training, but no clear plan','They talk about AI, but nothing concrete','Nothing at all','Not applicable, I am self-employed'],
-  selfrate:['Below average','About average','Above average','Well above average'],
-  speed:['It already has','Within a year','In two to three years','Five years or more','Never'],
+  twox:['Most of what I currently do could probably be automated','A significant part could be automated, but I would still be needed to supervise or correct it','AI could do more of the execution, while I would still need to make the technical decisions','AI would make me much more productive, but the hardest parts of my role would remain mine','My role would probably become more valuable, because I would be responsible for deciding how AI is used'],
   next:['Using Copilot and similar AI tools properly in my daily work','Building or integrating AI into software','AI security, governance and responsible use','Cloud and infrastructure for AI workloads','Data skills','Leading AI projects and teams','A Microsoft AI certification such as AI-900 or AI-102','None, I am fine as I am']
 };
 var QUESTIONS = [
   {key:'role',type:'radio',q:'What is your main area of work?',opts:ROLES},
-  {key:'years',type:'radio',q:'How many years have you worked in IT?',opts:OPT.years},
-  {key:'share',type:'radio',q:'Roughly what share of your working week does AI meaningfully help with today?',help:'Think about the AI tools you actually use, such as Copilot, ChatGPT, Claude or Gemini, not the ones you have read about.',opts:OPT.share},
+  {key:'share',type:'radio',q:'Roughly what share of your working week does AI meaningfully help with today?',help:'Think about the AI tools you actually use, not the ones you have read about.',opts:OPT.share},
   {key:'tasks',type:'check',q:'Which of these does AI already do well enough that you trust it with little checking?',help:'Tick all that apply.',branch:true},
-  {key:'change',type:'radio',q:'Which of these best describes how AI has changed your job in the last 12 months?',opts:OPT.change},
-  {key:'usage',type:'radio',q:'How often do you use AI tools in your actual work?',help:'Copilot, ChatGPT, Claude, Gemini or similar.',opts:OPT.usage},
-  {key:'training',type:'check',q:'In the last 12 months, what have you done to build AI skills?',help:'Tick all that apply. No judgement: most people\'s honest answer is "not as much as I meant to".',opts:OPT.training},
-  {key:'know',type:'radio',q:'Do you know which AI skills will matter most for your role over the next two years?',opts:OPT.know},
+  {key:'complexity',type:'radio',q:'Which best describes most of the work you are personally responsible for?',help:'Think about what you are paid to do, not your job title.',opts:OPT.complexity},
+  {key:'agent',type:'radio',q:'Have you built anything with AI that now does part of your job for you?',help:'A script, an agent, a Copilot workflow, an automation. Anything that runs without you doing it by hand each time.',opts:OPT.agent},
+  {key:'pays',type:'radio',q:'Who pays for the AI tools you use for work?',help:'If your employer restricts AI tools, say so below. This barely affects your score.',opts:OPT.pays},
+  {key:'validate',type:'radio',q:'When AI produces work you might actually use, how do you decide whether it is good enough?',help:'Code, a config, a draft, an analysis. Whatever you use it for.',opts:OPT.validate},
+  {key:'think',type:'radio',q:'Has AI given you time back, and what happened to it?',help:'Think about your actual week, not your intentions.',opts:OPT.think},
+  {key:'escalate',type:'radio',q:'When colleagues hit a problem that documentation and AI cannot solve, how often are you one of the people they come to?',opts:OPT.escalate},
+  {key:'domain',type:'radio',q:'How much does your work depend on knowing one industry well?',help:'Banking, healthcare, manufacturing, public sector and so on.',opts:OPT.domain},
+  {key:'account',type:'radio',q:'Does anything at work carry your name in a way that makes you accountable?',help:'A sign-off, an approval, a certification you hold, a review only you can give.',opts:OPT.account},
+  {key:'training',type:'check',q:'What have you actually invested in building AI skills in the last 12 months?',help:'Tick all that apply.',opts:OPT.training},
   {key:'plan',type:'radio',q:'Has your employer given you a clear plan for how AI will affect your role and what you should learn?',opts:OPT.plan},
   {key:'worry',type:'scale',q:'Honestly, how worried are you about AI and your own job over the next three years?',help:'Nobody sees your individual answers.'},
-  {key:'selfrate',type:'radio',q:'How would you rate your own AI skills compared with other people in your role?',opts:OPT.selfrate},
-  {key:'speed',type:'radio',q:'When do you expect AI to significantly change what you do day to day?',opts:OPT.speed},
+  {key:'twox',type:'radio',q:'Imagine AI becomes twice as capable as it is today. What happens to your role?',help:'The 2x test. Answer for the role you have now, not the one you want.',opts:OPT.twox},
   {key:'next',type:'check',q:'If time and budget were not a problem, which skill would you invest in next?',help:'Choose up to two.',opts:OPT.next,max:2}
 ];
 
@@ -246,6 +307,9 @@ var CAMPAIGN = params.get('utm_campaign') || params.get('utm_medium') || '';
 var PREROLE = params.get('role') ? ROLE_KEYS[params.get('role').toLowerCase()] : undefined;
 
 // ---------- build question screens
+document.getElementById('qCount').textContent = QUESTIONS.length;
+document.getElementById('closes').textContent = (CLOSE_DATE ? 'Responses close ' + CLOSE_DATE + '. ' : '') + "You'll get the full results report before it's published.";
+
 var qWrap = document.getElementById('questions');
 QUESTIONS.forEach(function(Qd, i){
   var s = document.createElement('section'); s.className='screen'; s.dataset.s='q'+i;
@@ -291,7 +355,8 @@ function renderOpts(Qd, list){
 function buildTasks(){
   var role = A.role || 'Other';
   document.getElementById('branchRole').textContent = role;
-  A.tasks=[]; renderOpts(QUESTIONS[3], ROLE_TASKS[role].concat([NONE_YET]));
+  var branchQ = QUESTIONS.filter(function(q){return q.branch;})[0];
+  A.tasks=[]; renderOpts(branchQ, ROLE_TASKS[role].concat([NONE_YET]));
 }
 buildTasks();
 if (PREROLE!==undefined){ var r=document.querySelector('input[name="role"][value="'+PREROLE+'"]'); if(r){ r.checked=true; A.role=ROLES[PREROLE]; buildTasks(); } }
@@ -330,24 +395,34 @@ document.querySelectorAll('[data-back]').forEach(function(b){ b.addEventListener
 function idx(list,v){ var i=list.indexOf(v); return i<0?0:i; }
 function computeScore(a){
   var role = ROLE_BASELINE[a.role]!==undefined ? a.role : 'Other', s={};
-  s.baseline = ROLE_BASELINE[role];
-  var shareP=[0,4,8,12,15][idx(OPT.share,a.share)];
+  s.baseline = ROLE_BASELINE[role];                                            // 0-10
+
+  var complexityP=[13,10,6,3,0][idx(OPT.complexity,a.complexity)];             // 0-13
+  var twoxP=[11,8,5,2,0][idx(OPT.twox,a.twox)];                                // 0-11
   var n=(a.tasks||[]).filter(function(t){return t!==NONE_YET&&t;}).length;
-  var tasksP = n===0?0:(n<=2?4:(n<=4?8:12));
-  var changeP=[0,1,3,3,0][idx(OPT.change,a.change)];
-  s.exposure=shareP+tasksP+changeP;
-  var usageP=[5,4,2,0][idx(OPT.usage,a.usage)];
-  var rank={'Nothing yet':10,'Experimented with AI tools on my own':6,'Free tutorials or videos':6,'Learned from colleagues':6,'A paid online course':3,'Training my employer provided':3,'An instructor-led course or certification':0};
-  var trainingP=10; (a.training||[]).forEach(function(t){ if(rank[t]!==undefined) trainingP=Math.min(trainingP,rank[t]); });
-  var knowP=[0,4,8][idx(OPT.know,a.know)];
-  var planP=[0,3,5,7,3][idx(OPT.plan,a.plan)];
-  s.gaps=usageP+trainingP+knowP+planP;
-  var overrates = idx(OPT.selfrate,a.selfrate)>=2 && trainingP>=6 ? 5 : 0;
-  var speedP=[0,1,3,5,5][idx(OPT.speed,a.speed)];
-  s.complacency=overrates+speedP;
-  s.total=Math.max(0,Math.min(100,s.baseline+s.exposure+s.gaps+s.complacency));
-  s.band = s.total>=65?'High':(s.total>=40?'Moderate':'Low');
-  s.trainingP=trainingP; s.planP=planP; s.knowP=knowP; s.overrates=overrates; s.speedP=speedP;
+  var tasksP = n===0?0:(n<=2?2:(n<=4?4:6));                                    // 0-6
+  var shareP=[0,1,2,3,4][idx(OPT.share,a.share)];                              // 0-4
+  s.work = complexityP + twoxP + tasksP + shareP;                              // 0-34
+
+  var agentP=[0,6,9,12][idx(OPT.agent,a.agent)];                               // 0-12
+  var validP=[12,8,5,2,0,10][idx(OPT.validate,a.validate)];                    // 0-12
+  var thinkP=[0,2,4,6][idx(OPT.think,a.think)];                                // 0-6
+  var paysP=[0,0,1,2][idx(OPT.pays,a.pays)];                                   // 0-2, deliberately tiny
+  s.judgment = agentP + validP + thinkP + paysP;                               // 0-32
+
+  var escalateP=[0,2,4,6,8][idx(OPT.escalate,a.escalate)];                     // 0-8
+  var accountP=[0,2,5][idx(OPT.account,a.account)];                            // 0-5
+  var domainP=[0,2,3][idx(OPT.domain,a.domain)];                               // 0-3
+  var rank={'Nothing':6,'Only free tutorials and videos':4,'I paid for a course myself':2,'My employer paid for structured training':2,'I hold an AI certification':1};
+  var trainingP=6; (a.training||[]).forEach(function(t){ if(rank[t]!==undefined) trainingP=Math.min(trainingP,rank[t]); });
+  var planP=[0,1,2,2,1][idx(OPT.plan,a.plan)];                                 // 0-2
+  s.standing = escalateP + accountP + domainP + trainingP + planP;             // 0-24
+
+  s.total=Math.max(0,Math.min(100,s.baseline+s.work+s.judgment+s.standing));
+  s.band = s.total>=58?'High':(s.total>=40?'Moderate':'Low');
+  s.complexityP=complexityP; s.twoxP=twoxP; s.agentP=agentP; s.validP=validP;
+  s.thinkP=thinkP; s.escalateP=escalateP; s.accountP=accountP; s.domainP=domainP;
+  s.trainingP=trainingP; s.planP=planP; s.paysP=paysP;
   return s;
 }
 var PATHS=[
@@ -363,37 +438,75 @@ var ROLE_DEFAULT_PATH={'Software development':1,'Cloud and infrastructure':3,'Cy
 
 function renderResult(s){
   var role = ROLE_BASELINE[A.role]!==undefined ? A.role : 'Other';
-  var bandLine={
-    High:'AI can already do a large share of the work in your role, and nothing in your answers suggests you have built the skills it cannot do yet. That is the combination that makes a position easy to replace.',
-    Moderate:'AI already does real work in your week. You have made a start on the skills around it, but the gap between using AI and being hard to replace is still open.',
-    Low:'Either AI has not reached much of your work yet, or you have already built the skills around it. Your position is harder to replace than most, for now. The number to watch is how fast that changes.'
+  var n = s.total;
+  var verdict = {
+    High:'At <b>'+n+'/100</b>, most of your week is work AI already handles well, and <b>41% of employers</b> plan to cut jobs where AI can do the work. You found out <b>before</b> your employer did.',
+    Moderate:'At <b>'+n+'/100</b>, AI already does real work in your week, and being useful with it is now the <b>baseline, not an advantage</b>. You found out <b>before</b> your employer did.',
+    Low:'At <b>'+n+'/100</b>, you are <b>harder to replace than most</b>, because you built the skills around AI instead of just using it. The number to watch is how fast that changes.'
   }[s.band];
   var d=[];
-  if(s.trainingP>=6) d.push('no structured AI training in the last 12 months');
-  if(s.planP>=5) d.push('an employer with no plan for what your role becomes');
-  if(s.knowP>=4) d.push('not being sure which AI skills matter for your role');
-  if(s.overrates) d.push('rating your AI skills above average without training to back it');
-  if(s.speedP>=3) d.push('expecting AI to change your work later than the evidence suggests');
-  if(s.exposure>=15) d.push('AI already handling a large share of your tasks');
-  var driverLine = d.length ? 'What pushed your score up: '+d.slice(0,3).join('; ')+'.' : 'What kept your score down: you use AI regularly, you have trained properly, and you know where it is going.';
+  if(s.complexityP>=10) d.push('work that follows defined processes more than it needs your judgment');
+  if(s.twoxP>=8) d.push('expecting most of your work to be automatable if AI doubles in capability');
+  if(s.validP>=8) d.push('accepting AI output without testing it against the requirement');
+  if(s.agentP>=9) d.push('never having built anything with AI that runs without you');
+  if(s.validP===10) d.push('not using AI on the work where it would help you most');
+  if(s.escalateP>=6) d.push('rarely being the person colleagues come to when AI cannot solve it');
+  if(s.accountP>=5) d.push('no work that carries your name in a way that makes you accountable');
+  if(s.thinkP>=4) d.push('no time gained back from AI, or none of it going to harder work');
+  if(s.trainingP>=4) d.push('no money or structured time put into AI skills this year');
+  if(s.domainP>=3) d.push('no deep industry knowledge to fall back on');
+  if(s.planP>=2) d.push('an employer with no plan for what your role becomes');
+  var head = d.length ? 'What pushed your score up' : 'What kept your score down';
+  var items = d.length ? d.slice(0,3) : ['you use AI regularly','you have trained properly','you know where it is going'];
   var pick=null; (A.next||[]).forEach(function(t){ var i=OPT.next.indexOf(t); if(pick===null&&i>=0&&i<7) pick=i; }); if(pick===null) pick=ROLE_DEFAULT_PATH[role];
   var soft={High:'If you would rather cover the wider stack than pick one course, most people in your position start with <a href="'+PRODUCT_LINK+'">Readynez Unlimited AI and Copilot Training</a>, which lets you take several short instructor-led AI courses over a year.',
             Moderate:'A short instructor-led course closes the gap faster than more experimenting. <a href="'+PRODUCT_LINK+'">Readynez Unlimited AI and Copilot Training</a> covers several of these in one subscription.',
             Low:'If you train others as well as yourself, a team-wide subscription such as <a href="'+PRODUCT_LINK+'">Readynez Unlimited AI and Copilot Training</a> tends to make more sense than single courses.'}[s.band];
+
   var BAND_EMOJI={High:'\uD83D\uDEA8',Moderate:'\u26A0\uFE0F',Low:'\uD83D\uDEE1\uFE0F'};
-  document.getElementById('rBand').innerHTML='<span class="bemo" aria-hidden="true">'+BAND_EMOJI[s.band]+'</span>'+s.band+' replaceability';
+  var BAND_LABEL={High:'You are very likely replaceable',Moderate:'You are already partly replaceable',Low:'You are hard to replace, for now'};
+  document.getElementById('rBand').innerHTML='<span class="bemo" aria-hidden="true">'+BAND_EMOJI[s.band]+'</span>'+BAND_LABEL[s.band];
   document.getElementById('rBand').className='band '+s.band;
-  document.getElementById('rBandLine').textContent=bandLine;
-  document.getElementById('rDrivers').textContent=driverLine;
-  document.getElementById('rCalc').textContent='How this was calculated: a baseline for '+role.toLowerCase()+' roles taken from Microsoft Research\'s published data on how much of each occupation\'s work generative AI can already do, adjusted for what you told us about how much AI already does in your week, your training, your employer\'s plan, and how far you expect AI to reach. It measures how replaceable your current skill set is today. It is not a prediction about you or your employer.';
-  document.getElementById('rPathIntro').textContent='The people getting more valuable right now are not the ones who use AI most. They are the ones who can direct it, check it, and do the parts it still gets wrong. For a '+role.toLowerCase()+' professional with your answers, the first skill worth investing in is:';
+  var w=A.worry||0, gap='';
+  if(w&&w<=2&&s.band==='High') gap=' <b>You said you were not very worried.</b> Your answers put you in the most exposed group.';
+  else if(w&&w>=4&&s.band==='Low') gap=' <b>You are more worried than your answers justify.</b>';
+  document.getElementById('rBandLine').innerHTML=verdict+gap;
+
+  var comps=[{n:'Your role',v:s.baseline,m:10,sub:role.toLowerCase()+' baseline'},
+             {n:'Your work',v:s.work,m:34,sub:'how routine it is, and what a 2x AI would take'},
+             {n:'AI judgment',v:s.judgment,m:32,sub:'what you built, and how you check AI output'},
+             {n:'Your standing',v:s.standing,m:24,sub:'scarcity, accountability, industry depth'}];
+  document.getElementById('rExposure').innerHTML=comps.map(function(c){
+    var pct=Math.round(c.v/c.m*100), cls=pct>=60?'hot':(pct>=35?'warm':'cool');
+    return '<div class="ex '+cls+'"><div class="exhead"><span class="exname">'+c.n+'</span><span class="expct">'+pct+'%</span></div>'+
+           '<p class="exsub">'+c.v+' of '+c.m+' \u00B7 '+c.sub+'</p><div class="exbar"><i data-w="'+pct+'"></i></div></div>';
+  }).join('');
+
+  var nTasks=(A.tasks||[]).filter(function(t){return t!==NONE_YET&&t;}).length;
+  var pool=(ROLE_TASKS[role]||[]).length;
+  var toHigh=s.total>=58?0:58-s.total;
+  var stats=[{b:s.judgment,i:'/32',s:'AI judgment gap'},
+             {b:nTasks,i:'/'+pool,s:'tasks AI does'},
+             toHigh>0?{b:toHigh,i:'',s:'points from very likely'}:{b:s.total-57,i:'',s:'points past very likely'}];
+  document.getElementById('rStats').innerHTML=stats.map(function(x){
+    return '<div class="st"><b>'+x.b+'<i>'+x.i+'</i></b><span>'+x.s+'</span></div>';}).join('');
+
+  document.getElementById('rDriversHead').textContent=head;
+  document.getElementById('rDrivers').innerHTML=items.map(function(x){return '<li>'+x+'</li>';}).join('');
+  document.getElementById('rCalc').textContent='How this was calculated: a small baseline for '+role.toLowerCase()+' roles from Microsoft Research\'s published data on occupational AI exposure, worth only 10 of the 100 points. The rest comes from what you told us you actually do: how routine your work is, what a twice as capable AI would take from it, what you have built with AI, how you decide its output is good enough, whether colleagues escalate to you, whether your work carries your name, how deep your industry knowledge runs, and what you have invested in training. It measures how replaceable your current way of working is today. It is not a prediction about you or your employer.';
+  document.getElementById('rPathIntro').textContent='For a '+role.toLowerCase()+' professional with your answers:';
   document.getElementById('rPath').innerHTML='<b>'+PATHS[pick][0]+'.</b> '+PATHS[pick][1];
   document.getElementById('rSoft').innerHTML=soft;
-  // animate
+
   var el=document.getElementById('rScore'), t0=null, dur=1300;
   function step(ts){ if(!t0) t0=ts; var p=Math.min(1,(ts-t0)/dur); var e=1-Math.pow(1-p,3); el.textContent=Math.round(s.total*e); if(p<1) requestAnimationFrame(step); }
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) el.textContent=s.total; else requestAnimationFrame(step);
-  setTimeout(function(){ document.getElementById('rPin').style.left=s.total+'%'; },50);
+  setTimeout(function(){
+    var arc=document.getElementById('rArc');
+    arc.setAttribute('class','g-arc '+s.band);
+    arc.style.strokeDashoffset = String(327 - 327*s.total/100);
+    document.querySelectorAll('.exbar i').forEach(function(b){ b.style.width=b.getAttribute('data-w')+'%'; });
+  },60);
 }
 
 // ---------- sample result, so people can see what they get before answering
@@ -419,7 +532,7 @@ document.getElementById('sampleStart').addEventListener('click',function(){
   relock();
   document.getElementById('sampleNote').hidden = true;
   document.getElementById('rStatus').hidden = false;
-  document.getElementById('rPin').style.left = '0%';
+  document.getElementById('rArc').style.strokeDashoffset = '327';
   document.getElementById('rScore').textContent = '0';
   show(A.role ? 'q1' : 'q0');
 });
@@ -450,7 +563,7 @@ document.getElementById('submit').addEventListener('click', function(){
   // unlock straight away. They have paid with the email, so they get the content
   // whether or not our own save succeeds.
   unlock();
-  var payload={answers:A, score:s.total, band:s.band, breakdown:{baseline:s.baseline,exposure:s.exposure,gaps:s.gaps,complacency:s.complacency}, source:SOURCE, campaign:CAMPAIGN, page:location.href, ua:navigator.userAgent, hp:document.getElementById('website').value};
+  var payload={answers:A, score:s.total, band:s.band, breakdown:{baseline:s.baseline,work:s.work,judgment:s.judgment,standing:s.standing}, source:SOURCE, campaign:CAMPAIGN, page:location.href, ua:navigator.userAgent, hp:document.getElementById('website').value};
   var st=document.getElementById('rStatus');
   function paint(state){
     if(state==='sent') st.textContent='Your result is saved. We will email a copy to '+email+'.';

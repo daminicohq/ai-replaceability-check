@@ -15,12 +15,11 @@
  *      No need to rebuild the form.
  *
  * SCORING (0 to 100, higher = more replaceable)
- *   Role baseline           0-30  from Microsoft Research occupational AI
- *                                 applicability data (see ROLE_BASELINE)
- *   Exposure today          0-30  Q4 share of week, Q5 tasks AI does well, Q6 change
- *   Readiness gaps          0-30  Q7 usage, Q8 training, Q9 know skills, Q10 employer plan
- *   Complacency             0-10  Q12 self-rating vs training, Q13 expected speed
- *   Bands: 0-39 Low, 40-64 Moderate, 65-100 High
+ *   Role baseline           0-10  job title, now only a tenth of the score
+ *   Your work               0-34  how routine it is, and what a twice as capable AI would take
+ *   AI judgment             0-32  what you built with AI, and how you decide its output is good enough
+ *   Your standing           0-24  scarcity, accountability, industry depth, training invested
+ *   Bands: 0-39 Low, 40-57 Moderate, 58-100 High
  */
 
 var FORM_TITLE = 'How replaceable are you? The AI Replaceability Check';
@@ -39,13 +38,13 @@ var ROLES = [
   'Other'
 ];
 var ROLE_BASELINE = {
-  'Software development': 22,
-  'Cloud and infrastructure': 17,
-  'Cyber security': 15,
-  'IT support and operations': 24,
-  'Data and AI': 22,
-  'IT management or leadership': 16,
-  'Other': 18
+  'Software development': 9,
+  'Cloud and infrastructure': 7,
+  'Cyber security': 6,
+  'IT support and operations': 10,
+  'Data and AI': 9,
+  'IT management or leadership': 7,
+  'Other': 8
 };
 var ROLE_TASKS = {
   'Software development': ['Writing routine code','Explaining or reviewing code','Writing tests','Debugging','Documentation','Refactoring','Architecture and design decisions'],
@@ -61,17 +60,20 @@ var NONE_YET = 'None of these yet';
 // ---- Question titles (used as keys when reading responses; keep in sync)
 var Q = {
   role: 'What is your main area of work?',
-  years: 'How many years have you worked in IT?',
   share: 'Roughly what share of your working week does AI meaningfully help with today?',
   tasks: 'Which of these does AI already do well enough that you trust it with little checking?',
-  change: 'Has AI changed your job in the last 12 months?',
-  usage: 'How often do you use AI tools (Copilot, ChatGPT, Claude, Gemini or similar) in your actual work?',
-  training: 'In the last 12 months, what have you done to build AI skills?',
-  know: 'Do you know which AI skills will matter most for your role over the next two years?',
+  complexity: 'Which best describes most of the work you are personally responsible for?',
+  agent: 'Have you built anything with AI that now does part of your job for you?',
+  pays: 'Who pays for the AI tools you use for work?',
+  validate: 'When AI produces work you might actually use, how do you decide whether it is good enough?',
+  think: 'Has AI given you time back, and what happened to it?',
+  escalate: 'When colleagues hit a problem that documentation and AI cannot solve, how often are you one of the people they come to?',
+  domain: 'How much does your work depend on knowing one industry well?',
+  account: 'Does anything at work carry your name in a way that makes you accountable?',
+  training: 'What have you actually invested in building AI skills in the last 12 months?',
   plan: 'Has your employer given you a clear plan for how AI will affect your role and what you should learn?',
   worry: 'How worried are you about AI and your own job over the next three years?',
-  selfrate: 'How would you rate your own AI skills compared with other people in your role?',
-  speed: 'When do you expect AI to significantly change what you do day to day?',
+  twox: 'Imagine AI becomes twice as capable as it is today. What happens to your role?',
   next: 'If time and budget were not a problem, which skill would you invest in next?',
   advice: 'In one sentence, what would you tell someone entering IT today?',
   email: 'Where should we send your score?',
@@ -79,15 +81,18 @@ var Q = {
 };
 
 var OPT = {
-  years: ['Under 2','2 to 5','6 to 10','11 to 20','More than 20'],
   share: ['None','Under 10%','10 to 25%','25 to 50%','More than 50%'],
-  change: ['My job is basically the same','I use AI, but my role has not changed','Routine tasks moved to AI and I do different work now','My team has shrunk or hiring has slowed','My role has grown because I am the one who knows AI'],
-  usage: ['Never','Now and then','Most weeks','Every day'],
-  training: ['Nothing yet','Experimented with AI tools on my own','Free tutorials or videos','A paid online course','An instructor-led course or certification','Training my employer provided','Learned from colleagues'],
-  know: ['Yes, clearly','Roughly','Not really'],
+  complexity: ['I mostly follow established processes to complete clearly defined tasks','I mostly execute defined technical work, but regularly need judgment to handle exceptions','I regularly diagnose problems where the cause or solution is not obvious','I design solutions and make technical decisions where there are several possible approaches','I mainly decide what problems should be solved, set direction, or take responsibility for outcomes'],
+  agent: ['Yes, and I use it regularly','Yes, I built something but it did not stick','No, but I know roughly how I would','No'],
+  pays: ['I pay for a plan out of my own pocket','My employer pays for a plan I actually use','I only use the free tiers','I do not really use AI tools'],
+  validate: ['I generally use the output if it looks reasonable','I review it manually and make corrections','I test or validate it against the requirements before using it','I challenge the output, test assumptions and verify important parts independently','It depends on the risk. Low-risk work gets lighter checking, important work gets rigorous validation','I do not use AI to produce work like this'],
+  think: ['Yes, and I spend it on harder problems that never got attention before','Yes, but it filled up with more of the same kind of work','No, my workload just went up','AI has not really changed how my time is spent'],
+  escalate: ['I am usually the final escalation point','Often','Sometimes','Rarely','Never'],
+  domain: ['A lot. I know the rules, constraints and edge cases of my industry','Some. It helps, but most of my work would transfer elsewhere','Very little. My work is much the same whichever industry I am in'],
+  account: ['Yes. Work does not ship without my approval','Sometimes. I sign off on some things','No. My work is checked by someone else, or by nobody'],
+  training: ['Nothing','Only free tutorials and videos','I paid for a course myself','My employer paid for structured training','I hold an AI certification'],
   plan: ['Yes, a clear plan with training','Some training, but no clear plan','They talk about AI, but nothing concrete','Nothing at all','Not applicable, I am self-employed'],
-  selfrate: ['Below average','About average','Above average','Well above average'],
-  speed: ['It already has','Within a year','In two to three years','Five years or more','Never'],
+  twox: ['Most of what I currently do could probably be automated','A significant part could be automated, but I would still be needed to supervise or correct it','AI could do more of the execution, while I would still need to make the technical decisions','AI would make me much more productive, but the hardest parts of my role would remain mine','My role would probably become more valuable, because I would be responsible for deciding how AI is used'],
   next: ['Using Copilot and similar AI tools properly in my daily work','Building or integrating AI into software','AI security, governance and responsible use','Cloud and infrastructure for AI workloads','Data skills','Leading AI projects and teams','A Microsoft AI certification such as AI-900 or AI-102','None, I am fine as I am'],
   consent: ['Yes, send me my AI Replaceability Score, the full report when it is published, and occasional Readynez tips on staying hard to replace. I can unsubscribe at any time.']
 };
@@ -117,7 +122,6 @@ function buildForm() {
   // ---- Page 1: role (the branch switch), years, share of week. All three stay on one page
   //      because Google Forms branches at the END of the page that holds the choice question.
   var roleItem = form.addMultipleChoiceItem().setTitle(Q.role).setRequired(true);
-  form.addMultipleChoiceItem().setTitle(Q.years).setChoiceValues(OPT.years).setRequired(true);
   form.addMultipleChoiceItem().setTitle(Q.share)
     .setHelpText('Think about the AI tools you actually use, such as Copilot, ChatGPT, Claude or Gemini, not the ones you have read about.')
     .setChoiceValues(OPT.share).setRequired(true);
@@ -138,18 +142,22 @@ function buildForm() {
   // ---- Common section after the branch
   var afterBreak = form.addPageBreakItem().setTitle('What has changed, and what have you done about it?')
     .setHelpText('No judgement. Most people\'s honest answer is "not as much as I meant to".');
-  form.addMultipleChoiceItem().setTitle(Q.change).setChoiceValues(OPT.change).setRequired(true);
-  form.addMultipleChoiceItem().setTitle(Q.usage).setChoiceValues(OPT.usage).setRequired(true);
+  form.addMultipleChoiceItem().setTitle(Q.complexity).setHelpText('Think about what you are paid to do, not your job title.').setChoiceValues(OPT.complexity).setRequired(true);
+  form.addMultipleChoiceItem().setTitle(Q.agent).setHelpText('A script, an agent, a Copilot workflow, an automation.').setChoiceValues(OPT.agent).setRequired(true);
+  form.addMultipleChoiceItem().setTitle(Q.pays).setChoiceValues(OPT.pays).setRequired(true);
+  form.addMultipleChoiceItem().setTitle(Q.validate).setChoiceValues(OPT.validate).setRequired(true);
+  form.addMultipleChoiceItem().setTitle(Q.think).setChoiceValues(OPT.think).setRequired(true);
+  form.addMultipleChoiceItem().setTitle(Q.escalate).setChoiceValues(OPT.escalate).setRequired(true);
+  form.addMultipleChoiceItem().setTitle(Q.domain).setChoiceValues(OPT.domain).setRequired(true);
+  form.addMultipleChoiceItem().setTitle(Q.account).setChoiceValues(OPT.account).setRequired(true);
   form.addCheckboxItem().setTitle(Q.training).setHelpText('Tick all that apply.').setChoiceValues(OPT.training).setRequired(true);
-  form.addMultipleChoiceItem().setTitle(Q.know).setChoiceValues(OPT.know).setRequired(true);
   form.addMultipleChoiceItem().setTitle(Q.plan).setChoiceValues(OPT.plan).setRequired(true);
 
   // ---- Section: honest questions
   form.addPageBreakItem().setTitle('Three honest questions')
     .setHelpText('Nobody sees your individual answers. This is what makes the comparison worth having.');
   form.addScaleItem().setTitle(Q.worry).setBounds(1, 5).setLabels('Not worried at all', 'Very worried').setRequired(true);
-  form.addMultipleChoiceItem().setTitle(Q.selfrate).setChoiceValues(OPT.selfrate).setRequired(true);
-  form.addMultipleChoiceItem().setTitle(Q.speed).setChoiceValues(OPT.speed).setRequired(true);
+  form.addMultipleChoiceItem().setTitle(Q.twox).setHelpText('The 2x test.').setChoiceValues(OPT.twox).setRequired(true);
 
   // ---- Section: next step + email
   form.addPageBreakItem().setTitle('Last two, then your score');
@@ -190,33 +198,37 @@ function buildForm() {
 function idx(list, value) { var i = list.indexOf(value); return i < 0 ? 0 : i; }
 
 function computeScore(a) {
-  // a = { role, share, tasks[], change, usage, training[], know, plan, selfrate, speed }
   var role = ROLE_BASELINE[a.role] !== undefined ? a.role : 'Other';
   var s = {};
+  s.baseline = ROLE_BASELINE[role];                                            // 0-10
 
-  s.baseline = ROLE_BASELINE[role];                                   // 0-30
-
-  var shareP = [0, 4, 8, 12, 15][idx(OPT.share, a.share)];             // 0-15
+  var complexityP = [13, 10, 6, 3, 0][idx(OPT.complexity, a.complexity)];      // 0-13
+  var twoxP = [11, 8, 5, 2, 0][idx(OPT.twox, a.twox)];                         // 0-11
   var n = (a.tasks || []).filter(function(t) { return t !== NONE_YET && t; }).length;
-  var tasksP = n === 0 ? 0 : (n <= 2 ? 4 : (n <= 4 ? 8 : 12));         // 0-12
-  var changeP = [0, 1, 3, 3, 0][idx(OPT.change, a.change)];            // 0-3
-  s.exposure = shareP + tasksP + changeP;                             // 0-30
+  var tasksP = n === 0 ? 0 : (n <= 2 ? 2 : (n <= 4 ? 4 : 6));                  // 0-6
+  var shareP = [0, 1, 2, 3, 4][idx(OPT.share, a.share)];                       // 0-4
+  s.work = complexityP + twoxP + tasksP + shareP;                              // 0-34
 
-  var usageP = [5, 4, 2, 0][idx(OPT.usage, a.usage)];                  // 0-5
-  var trainingRank = { 'Nothing yet': 10, 'Experimented with AI tools on my own': 6, 'Free tutorials or videos': 6, 'Learned from colleagues': 6, 'A paid online course': 3, 'Training my employer provided': 3, 'An instructor-led course or certification': 0 };
-  var trainingP = 10;
-  (a.training || []).forEach(function(t) { if (trainingRank[t] !== undefined) trainingP = Math.min(trainingP, trainingRank[t]); });
-  var knowP = [0, 4, 8][idx(OPT.know, a.know)];                        // 0-8
-  var planP = [0, 3, 5, 7, 3][idx(OPT.plan, a.plan)];                  // 0-7
-  s.gaps = usageP + trainingP + knowP + planP;                         // 0-30
+  var agentP = [0, 6, 9, 12][idx(OPT.agent, a.agent)];                         // 0-12
+  var validP = [12, 8, 5, 2, 0, 10][idx(OPT.validate, a.validate)];            // 0-12
+  var thinkP = [0, 2, 4, 6][idx(OPT.think, a.think)];                          // 0-6
+  var paysP = [0, 0, 1, 2][idx(OPT.pays, a.pays)];                             // 0-2, deliberately tiny
+  s.judgment = agentP + validP + thinkP + paysP;                               // 0-32
 
-  var overrates = idx(OPT.selfrate, a.selfrate) >= 2 && trainingP >= 6 ? 5 : 0;
-  var speedP = [0, 1, 3, 5, 5][idx(OPT.speed, a.speed)];
-  s.complacency = overrates + speedP;                                  // 0-10
+  var escalateP = [0, 2, 4, 6, 8][idx(OPT.escalate, a.escalate)];              // 0-8
+  var accountP = [0, 2, 5][idx(OPT.account, a.account)];                       // 0-5
+  var domainP = [0, 2, 3][idx(OPT.domain, a.domain)];                          // 0-3
+  var rank = { 'Nothing': 6, 'Only free tutorials and videos': 4, 'I paid for a course myself': 2, 'My employer paid for structured training': 2, 'I hold an AI certification': 1 };
+  var trainingP = 6;
+  (a.training || []).forEach(function(t) { if (rank[t] !== undefined) trainingP = Math.min(trainingP, rank[t]); });
+  var planP = [0, 1, 2, 2, 1][idx(OPT.plan, a.plan)];                          // 0-2
+  s.standing = escalateP + accountP + domainP + trainingP + planP;             // 0-24
 
-  s.total = Math.max(0, Math.min(100, s.baseline + s.exposure + s.gaps + s.complacency));
-  s.band = s.total >= 65 ? 'High' : (s.total >= 40 ? 'Moderate' : 'Low');
-  s.trainingP = trainingP; s.planP = planP; s.knowP = knowP; s.overrates = overrates; s.speedP = speedP; s.n = n;
+  s.total = Math.max(0, Math.min(100, s.baseline + s.work + s.judgment + s.standing));
+  s.band = s.total >= 58 ? 'High' : (s.total >= 40 ? 'Moderate' : 'Low');
+  s.complexityP = complexityP; s.twoxP = twoxP; s.agentP = agentP; s.validP = validP;
+  s.thinkP = thinkP; s.escalateP = escalateP; s.accountP = accountP; s.domainP = domainP;
+  s.trainingP = trainingP; s.planP = planP; s.paysP = paysP; s.n = n;
   return s;
 }
 
@@ -237,15 +249,25 @@ var PRODUCT_LINK = 'https://platform.readynez.com/products/unlimited-ai-copilot-
 
 // The two personalised lines. Shared by the result email and the 'Web responses' tab,
 // so Dynamics 365 can merge them straight from the sheet instead of recomputing them.
+// The plain-English verdict shown on the result screen and in the email. Keep both in step.
+function bandLabel_(band) {
+  return { 'High': 'You are very likely replaceable', 'Moderate': 'You are already partly replaceable', 'Low': 'You are hard to replace, for now' }[band];
+}
+
 function driverLine_(s) {
-  var drivers = [];
-  if (s.trainingP >= 6) drivers.push('no structured AI training in the last 12 months');
-  if (s.planP >= 5) drivers.push('an employer with no plan for what your role becomes');
-  if (s.knowP >= 4) drivers.push('not being sure which AI skills matter for your role');
-  if (s.overrates) drivers.push('rating your AI skills above average without training to back it');
-  if (s.speedP >= 3) drivers.push('expecting AI to change your work later than the evidence suggests');
-  if (s.exposure >= 15) drivers.push('AI already handling a large share of your tasks');
-  return drivers.length ? 'What pushed your score up: ' + drivers.slice(0, 3).join('; ') + '.' : 'What kept your score down: you use AI regularly, you have trained properly, and you know where it is going.';
+  var d = [];
+  if (s.complexityP >= 10) d.push('work that follows defined processes more than it needs your judgment');
+  if (s.twoxP >= 8) d.push('expecting most of your work to be automatable if AI doubles in capability');
+  if (s.validP >= 8) d.push('accepting AI output without testing it against the requirement');
+  if (s.agentP >= 9) d.push('never having built anything with AI that runs without you');
+  if (s.validP === 10) d.push('not using AI on the work where it would help you most');
+  if (s.escalateP >= 6) d.push('rarely being the person colleagues come to when AI cannot solve it');
+  if (s.accountP >= 5) d.push('no work that carries your name in a way that makes you accountable');
+  if (s.thinkP >= 4) d.push('no time gained back from AI, or none of it going to harder work');
+  if (s.trainingP >= 4) d.push('no money or structured time put into AI skills this year');
+  if (s.domainP >= 3) d.push('no deep industry knowledge to fall back on');
+  if (s.planP >= 2) d.push('an employer with no plan for what your role becomes');
+  return d.length ? 'What pushed your score up: ' + d.slice(0, 3).join('; ') + '.' : 'What kept your score down: you own outcomes rather than tasks, you validate what AI gives you, and your work carries your name.';
 }
 function pathFor_(a) {
   var role = ROLE_BASELINE[a.role] !== undefined ? a.role : 'Other';
@@ -258,9 +280,9 @@ function pathFor_(a) {
 function buildResultEmail(a, s) {
   var role = ROLE_BASELINE[a.role] !== undefined ? a.role : 'Other';
   var bandLine = {
-    'High': 'AI can already do a large share of the work in your role, and nothing in your answers suggests you have built the skills it cannot do yet. That is the combination that makes a position easy to replace.',
-    'Moderate': 'AI already does real work in your week. You have made a start on the skills around it, but the gap between using AI and being hard to replace is still open.',
-    'Low': 'Either AI has not reached much of your work yet, or you have already built the skills around it. Your position is harder to replace than most, for now. The number to watch is how fast that changes.'
+    'High': 'At ' + s.total + '/100, most of your week is work AI already handles well, and 41% of employers plan to cut jobs where AI can do the work. You found out before your employer did.',
+    'Moderate': 'At ' + s.total + '/100, AI already does real work in your week, and being useful with it is now the baseline, not an advantage. You found out before your employer did.',
+    'Low': 'At ' + s.total + '/100, you are harder to replace than most, because you built the skills around AI instead of just using it. The number to watch is how fast that changes.'
   }[s.band];
 
   var driverLine = driverLine_(s);
@@ -271,7 +293,7 @@ function buildResultEmail(a, s) {
     '<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#172220;max-width:600px;margin:0 auto;padding:24px">' +
     '<p style="font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#66716D;margin:0 0 8px">Readynez AI Replaceability Check</p>' +
     '<h1 style="font-size:26px;line-height:1.2;margin:0 0 6px">Your AI Replaceability Score: ' + s.total + ' out of 100</h1>' +
-    '<p style="font-size:20px;font-weight:bold;margin:0 0 18px;color:' + (s.band === 'High' ? '#B4432E' : (s.band === 'Moderate' ? '#B37A12' : '#0B7A57')) + '">' + s.band + ' replaceability</p>' +
+    '<p style="font-size:20px;font-weight:bold;margin:0 0 18px;color:' + (s.band === 'High' ? '#B4432E' : (s.band === 'Moderate' ? '#B37A12' : '#0B7A57')) + '">' + bandLabel_(s.band) + '</p>' +
     '<p>' + bandLine + '</p>' +
     '<p>' + driverLine + '</p>' +
     '<p style="font-size:13px;color:#66716D;border-top:1px solid #D6DCD8;padding-top:10px">How this was calculated: a baseline for ' + role.toLowerCase() + ' roles taken from Microsoft Research\'s published data on how much of each occupation\'s work generative AI can already do, adjusted for what you told us about how much AI already does in your week, your training, your employer\'s plan, and how far you expect AI to reach. It measures how replaceable your current skill set is today. It is not a prediction about you or your employer.</p>' +
@@ -297,13 +319,17 @@ function onSubmit(e) {
     if (t === Q.role) a.role = v;
     else if (t === Q.share) a.share = v;
     else if (t === Q.tasks) a.tasks = a.tasks.concat(v);
-    else if (t === Q.change) a.change = v;
-    else if (t === Q.usage) a.usage = v;
+    else if (t === Q.agent) a.agent = v;
+    else if (t === Q.pays) a.pays = v;
+    else if (t === Q.complexity) a.complexity = v;
+    else if (t === Q.validate) a.validate = v;
+    else if (t === Q.think) a.think = v;
+    else if (t === Q.escalate) a.escalate = v;
+    else if (t === Q.domain) a.domain = v;
+    else if (t === Q.account) a.account = v;
     else if (t === Q.training) a.training = [].concat(v);
-    else if (t === Q.know) a.know = v;
     else if (t === Q.plan) a.plan = v;
-    else if (t === Q.selfrate) a.selfrate = v;
-    else if (t === Q.speed) a.speed = v;
+    else if (t === Q.twox) a.twox = v;
     else if (t === Q.next) a.next = [].concat(v);
     else if (t === Q.email) a.email = String(v).trim();
   });
@@ -322,8 +348,8 @@ function onSubmit(e) {
 function logScore(email, s, status) {
   var ss = SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty('SHEET_ID'));
   var sh = ss.getSheetByName('Scores') || ss.insertSheet('Scores');
-  if (sh.getLastRow() === 0) sh.appendRow(['Timestamp','Email','Score','Band','Baseline','Exposure','Gaps','Complacency','Email status']);
-  sh.appendRow([new Date(), email, s.total, s.band, s.baseline, s.exposure, s.gaps, s.complacency, status]);
+  if (sh.getLastRow() === 0) sh.appendRow(['Timestamp','Email','Score','Band','Role','Work','AI judgment','Standing','Email status']);
+  sh.appendRow([new Date(), email, s.total, s.band, s.baseline, s.work, s.judgment, s.standing, status]);
 }
 
 // Run manually if the log shows FAILED rows (e.g. after a quota reset). Re-scores from the form's stored responses.
@@ -360,9 +386,9 @@ function doPost(e) {
     // 1) store the full response in its own tab
     var ss = SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty('SHEET_ID'));
     var sh = ss.getSheetByName('Web responses') || ss.insertSheet('Web responses');
-    if (sh.getLastRow() === 0) sh.appendRow(['Timestamp','Email','Consent','Role','Years','Share of week','Tasks AI does well','Job change','Usage','Training','Knows skills','Employer plan','Worry (1-5)','Self-rating','Expected speed','Skill next','Advice','Score','Band','Baseline','Exposure','Gaps','Complacency','Drivers','Learning path','Learning path detail','Source','Campaign','Page']);
+    if (sh.getLastRow() === 0) sh.appendRow(['Timestamp','Email','Consent','Role','Share of week','Tasks AI does well','Work complexity','Built an agent','Who pays','How AI output is validated','Time back from AI','Escalation point','Industry depth','Accountability','Training invested','Employer plan','Worry (1-5)','2x AI test','Skill next','Advice','Score','Band','Role pts','Work pts','AI judgment pts','Standing pts','Drivers','Learning path','Learning path detail','Source','Campaign','Page']);
     var path = pathFor_(a);
-    sh.appendRow([new Date(), a.email, a.consent ? 'yes' : 'no', a.role || '', a.years || '', a.share || '', a.tasks.join('; '), a.change || '', a.usage || '', a.training.join('; '), a.know || '', a.plan || '', a.worry || '', a.selfrate || '', a.speed || '', a.next.join('; '), a.advice || '', s.total, s.band, s.baseline, s.exposure, s.gaps, s.complacency, driverLine_(s), path[0], path[1], body.source || '', body.campaign || '', body.page || '']);
+    sh.appendRow([new Date(), a.email, a.consent ? 'yes' : 'no', a.role || '', a.share || '', a.tasks.join('; '), a.complexity || '', a.agent || '', a.pays || '', a.validate || '', a.think || '', a.escalate || '', a.domain || '', a.account || '', a.training.join('; '), a.plan || '', a.worry || '', a.twox || '', a.next.join('; '), a.advice || '', s.total, s.band, s.baseline, s.work, s.judgment, s.standing, driverLine_(s), path[0], path[1], body.source || '', body.campaign || '', body.page || '']);
 
     // 2) the hosted page does NOT email. The visitor reads the score on screen, and
     //    Readynez mails the copy from Dynamics 365 Marketing after exporting this tab.
@@ -380,9 +406,12 @@ function json_(obj) { return ContentService.createTextOutput(JSON.stringify(obj)
 
 // Sends a sample result to yourself so you can check the email before sharing the form.
 function previewEmail() {
-  var a = { role: 'Software development', share: '25 to 50%', tasks: ['Writing routine code','Writing tests','Documentation'], change: 'I use AI, but my role has not changed',
-            usage: 'Every day', training: ['Experimented with AI tools on my own'], know: 'Roughly', plan: 'They talk about AI, but nothing concrete',
-            selfrate: 'Above average', speed: 'In two to three years', next: ['Building or integrating AI into software'], email: Session.getActiveUser().getEmail() };
+  var a = { role: 'Software development', share: '25 to 50%', tasks: ['Writing routine code','Writing tests'],
+            complexity: OPT.complexity[1], agent: 'No, but I know roughly how I would', pays: 'I only use the free tiers',
+            validate: OPT.validate[1], think: OPT.think[1], escalate: 'Sometimes',
+            domain: OPT.domain[1], account: OPT.account[1], training: ['Only free tutorials and videos'],
+            plan: 'They talk about AI, but nothing concrete', twox: OPT.twox[1],
+            next: ['Building or integrating AI into software'], email: Session.getActiveUser().getEmail() };
   var s = computeScore(a); var m = buildResultEmail(a, s);
   MailApp.sendEmail(a.email, '[PREVIEW] ' + m.subject, 'preview', { htmlBody: m.html, name: SENDER_NAME });
   Logger.log('Preview sent to ' + a.email + ' with score ' + s.total + ' (' + s.band + ')');

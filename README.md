@@ -2,12 +2,12 @@
 
 The hosted front end for the Readynez campaign 'How replaceable are you?'.
 
-Visitors answer 13 questions in about 3 minutes and get an AI Replaceability Score from
+Visitors answer 16 questions in about 4 minutes and get an AI Replaceability Score from
 0 to 100, where higher means AI could more easily do their current work. The score is
 shown on screen straight away. The answers are saved to a Google Sheet so Readynez can
 mail the result from Dynamics 365 Marketing.
 
-Bands are 0 to 39 Low, 40 to 64 Moderate, 65 to 100 High.
+Bands are 0 to 39 Low, 40 to 57 Moderate, 58 to 100 High.
 
 ## Installing it (this is the whole job)
 
