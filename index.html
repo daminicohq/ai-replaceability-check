@@ -274,7 +274,7 @@ var OPT = {
   share:['None','Under 10%','10 to 25%','25 to 50%','More than 50%'],
   complexity:['I mostly follow established processes to complete clearly defined tasks','I mostly execute defined technical work, but regularly need judgment to handle exceptions','I regularly diagnose problems where the cause or solution is not obvious','I design solutions and make technical decisions where there are several possible approaches','I mainly decide what problems should be solved, set direction, or take responsibility for outcomes'],
   agent:['Yes, and I use it regularly','Yes, I built something but it did not stick','No, but I know roughly how I would','No'],
-  pays:['I pay for a plan out of my own pocket','My employer pays for a plan I actually use','I only use the free tiers','I do not really use AI tools'],
+  pays:['I pay for a plan out of my own pocket','My employer pays for a plan I actually use','My employer pays for a plan I do not use','I only use the free tiers','I do not really use AI tools'],
   validate:['I generally use the output if it looks reasonable','I review it manually and make corrections','I test or validate it against the requirements before using it','I challenge the output, test assumptions and verify important parts independently','It depends on the risk. Low-risk work gets lighter checking, important work gets rigorous validation','I do not use AI to produce work like this'],
   think:['Yes, and I spend it on harder problems that never got attention before','Yes, but it filled up with more of the same kind of work','No, my workload just went up','AI has not really changed how my time is spent'],
   escalate:['I am usually the final escalation point','Often','Sometimes','Rarely','Never'],
@@ -411,7 +411,7 @@ function computeScore(a){
   var agentP=[0,6,9,12][idx(OPT.agent,a.agent)];                               // 0-12
   var validP=[12,8,5,2,0,10][idx(OPT.validate,a.validate)];                    // 0-12
   var thinkP=[0,2,4,6][idx(OPT.think,a.think)];                                // 0-6
-  var paysP=[0,0,1,2][idx(OPT.pays,a.pays)];                                   // 0-2, deliberately tiny
+  var paysP=[0,0,2,1,2][idx(OPT.pays,a.pays)];                                   // 0-2, deliberately tiny
   s.judgment = agentP + validP + thinkP + paysP;                               // 0-32
 
   var escalateP=[0,2,4,6,8][idx(OPT.escalate,a.escalate)];                     // 0-8
