@@ -570,7 +570,7 @@ document.getElementById('submit').addEventListener('click', function(){
   var payload={answers:A, score:s.total, band:s.band, breakdown:{baseline:s.baseline,work:s.work,judgment:s.judgment,standing:s.standing}, source:SOURCE, campaign:CAMPAIGN, page:location.href, ua:navigator.userAgent, hp:document.getElementById('website').value};
   var st=document.getElementById('rStatus');
   function paint(state){
-    if(state==='sent') st.textContent='Your result is saved. We will email a copy to '+email+'.';
+    if(state==='sent') st.textContent='Your result is saved. We will send your full report and how you compare to '+email+'.';
     else if(state==='pending') st.textContent='Saving your result…';
     else { st.innerHTML='Your breakdown is above, but we could not save it just now. <a href="#" id="retry">Try again</a>.';
       document.getElementById('retry').addEventListener('click',function(ev){ ev.preventDefault(); paint('pending'); send(payload).then(function(){ paint('sent'); }).catch(function(){ st.textContent='Still no luck. Please email us and we will send your report by hand.'; }); }); }
