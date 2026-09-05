@@ -208,7 +208,7 @@ footer{max-width:680px;margin:0 auto;padding:0 20px 40px;color:var(--muted);font
       <button class="btn primary" id="sampleStart" type="button">Start my check →</button>
     </div>
     <div class="reveal">
-      <div class="label">Your AI Replaceability Score</div>
+      <div class="label">Your AI Risk Level</div>
       <div class="gauge">
         <svg viewBox="0 0 120 120" aria-hidden="true">
           <circle class="g-track" cx="60" cy="60" r="52"></circle>
@@ -585,5 +585,6 @@ function send(payload){
     .then(function(j){ if(!j || j.ok!==true) throw new Error('bad response'); return j; });
 }
 </script>
+<script>(function(){function up(el){if(!el)return;var x=(el.textContent||"").trim();if(!x||/RISK/i.test(x))return;var m=x.match(/^(Low|Moderate|High)\b/i);if(m){el.textContent=m[1].toUpperCase()+" RISK";}}function watch(){var el=document.getElementById("rBand");if(!el){return setTimeout(watch,200);}up(el);new MutationObserver(function(){up(el);}).observe(el,{childList:true,characterData:true,subtree:true});}if(document.readyState!=="loading")watch();else document.addEventListener("DOMContentLoaded",watch);})();</script>
 </body>
 </html>
