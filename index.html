@@ -589,5 +589,34 @@ function send(payload){
 }
 </script>
 <script>(function(){function up(el){if(!el)return;var x=(el.textContent||"").trim();if(!x||/RISK/i.test(x))return;var m=x.match(/^(Low|Moderate|High)\b/i);if(m){el.textContent=m[1].toUpperCase()+" RISK";}}function watch(){var el=document.getElementById("rBand");if(!el){return setTimeout(watch,200);}up(el);new MutationObserver(function(){up(el);}).observe(el,{childList:true,characterData:true,subtree:true});}if(document.readyState!=="loading")watch();else document.addEventListener("DOMContentLoaded",watch);})();</script>
+
+<script data-role-hero>
+(function(){
+  var HERO={
+    dev:{e:'For software developers and data engineers',h:'How easily could AI <em>replace<\/em> a developer like you?',d:"Microsoft's own research puts web developers and data scientists among the roles most exposed to AI. Most developers still assume it is someone else's job on the line."},
+    security:{e:'For cyber security professionals',h:'Is AI coming for the <em>security<\/em> team too?',d:"Security felt safe from automation. Now AI triages alerts, writes detections and reads logs faster than any analyst. See where that leaves you."},
+    manager:{e:'For IT managers and team leads',h:'How replaceable is your <em>team<\/em>, and how ready is it?',d:"You are judged on what your team can ship. See how exposed the roles you manage really are, and the gaps to close before AI closes them for you."},
+    leader:{e:'For IT directors and technology leaders',h:'Could AI <em>replace<\/em> the roles you lead?',d:"Take the check yourself in four minutes. Then see why the roles on your team may be more exposed than you think, and what closes the gap."}
+  };
+  var ALIAS={software:'dev',data:'dev',ai:'dev',cyber:'security',sec:'security',infra:'manager',ops:'manager',support:'manager',director:'leader',leadership:'leader',clevel:'leader',exec:'leader'};
+  try{
+    var raw=(new URLSearchParams(location.search).get('role')||'').toLowerCase();
+    if(!raw) return;
+    var key=HERO[raw]?raw:(ALIAS[raw]||'');
+    if(!key||!HERO[key]) return;
+    var run=function(){
+      var intro=document.querySelector('[data-s="intro"]'); if(!intro) return;
+      var eb=intro.querySelector('.eyebrow'); if(eb) eb.textContent=HERO[key].e;
+      var h1=intro.querySelector('h1'); if(h1) h1.innerHTML=HERO[key].h;
+      var dk=intro.querySelector('.deck'); if(dk) dk.textContent=HERO[key].d;
+      if((key==='leader'||key==='manager') && !document.querySelector('input[name="role"]:checked')){
+        var r=document.querySelector('input[name="role"][value="5"]');
+        if(r){ r.checked=true; if(window.A) window.A.role=(window.ROLES&&window.ROLES[5])||'IT management or leadership'; if(typeof window.buildTasks==='function') window.buildTasks(); }
+      }
+    };
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
+  }catch(_e){}
+})();
+</script>
 </body>
 </html>
