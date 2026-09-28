@@ -618,5 +618,18 @@ function send(payload){
   }catch(_e){}
 })();
 </script>
+
+<!-- progress-bar visibility enhancement -->
+<style data-progbar-enhance>
+.track{height:10px;background:rgba(255,255,255,.16)}
+.track b{border-top-right-radius:6px;border-bottom-right-radius:6px;box-shadow:0 0 10px rgba(255,138,43,.5)}
+.top .prog{font-size:15px;font-weight:700;color:var(--dark-ink)}
+.qprog{margin:2px 0 18px;height:8px;border-radius:999px;background:#EFE7D9;overflow:hidden}
+.qprog>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#FF8A2B,#FFBE7A);border-radius:999px;transition:width .3s ease}
+</style>
+<script data-progbar-enhance>
+(function(){function build(){var secs=document.querySelectorAll('section.screen');for(var s=0;s<secs.length;s++){(function(sec){var qn=sec.querySelector('p.qnum');if(!qn||sec.querySelector('.qprog'))return;var t=(qn.textContent||'');var nums=[],cur='';for(var i=0;i<t.length;i++){var ch=t.charAt(i);if(ch>='0'&&ch<='9'){cur+=ch;}else if(cur){nums.push(cur);cur='';}}if(cur)nums.push(cur);var n=parseInt(nums[0]||'0',10),tot=parseInt(nums[1]||'16',10)||16;var pct=Math.max(4,Math.round(n/tot*100));var bar=document.createElement('div');bar.className='qprog';var fill=document.createElement('i');fill.style.width=pct+'%';bar.appendChild(fill);qn.parentNode.insertBefore(bar,qn);})(secs[s]);}}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',build);}else{build();}})();
+</script>
+
 </body>
 </html>
