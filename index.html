@@ -654,5 +654,40 @@ function send(payload){
 (function(){function sync(){var pb=document.getElementById('progBar');var w=pb?(pb.style.width||'0%'):'0%';var num=parseFloat(w);if(!(num>4)){w='4%';}var secs=document.querySelectorAll('section.screen');for(var s=0;s<secs.length;s++){var sec=secs[s],qn=sec.querySelector('p.qnum');if(!qn){continue;}var bar=sec.querySelector('.qprog');if(!bar){bar=document.createElement('div');bar.className='qprog';var f=document.createElement('i');bar.appendChild(f);qn.parentNode.insertBefore(bar,qn);}bar.firstChild.style.width=w;}}function init(){sync();var pb=document.getElementById('progBar');if(pb&&window.MutationObserver){new MutationObserver(sync).observe(pb,{attributes:true,attributeFilter:['style']});}}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{init();}})();
 </script>
 
+
+<!-- record completions even without an email (added Sep 2026) -->
+<script data-anon-save>
+(function(){
+  try{
+    var done=false;
+    function shouldSave(){
+      if(done) return false;
+      var r=document.querySelector('section[data-s="result"]');
+      if(!(r && r.classList.contains('active'))) return false;
+      var g=document.getElementById('gate');
+      if(!g || g.hidden) return false;
+      if(typeof A==='undefined' || typeof ENDPOINT==='undefined') return false;
+      if(String(ENDPOINT).indexOf('http')!==0) return false;
+      if(A && A.email) return false;
+      return true;
+    }
+    function saveAnon(){
+      try{
+        if(!shouldSave()) return;
+        var s; try{ s=computeScore(A); }catch(e){ return; }
+        var payload={answers:A,score:s.total,band:s.band,breakdown:{baseline:s.baseline,work:s.work,judgment:s.judgment,standing:s.standing},source:(typeof SOURCE!=='undefined'?SOURCE:''),campaign:(typeof CAMPAIGN!=='undefined'?CAMPAIGN:''),page:location.href,noEmail:true};
+        var body=JSON.stringify(payload);
+        var okq=false;
+        try{ okq=!!(navigator.sendBeacon && navigator.sendBeacon(ENDPOINT, new Blob([body],{type:'text/plain;charset=utf-8'}))); }catch(e){}
+        if(!okq){ try{ fetch(ENDPOINT,{method:'POST',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body:body}); }catch(e){} }
+        done=true;
+      }catch(e){}
+    }
+    window.addEventListener('pagehide', saveAnon);
+    document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='hidden'){ saveAnon(); } });
+  }catch(e){}
+})();
+</script>
+
 </body>
 </html>
