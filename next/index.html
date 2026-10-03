@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The AI Replaceability Check</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+  :root{
+    --slate:#394651; --slate-d:#2f3a44; --ink:#273039; --muted:#5d6b76;
+    --cream:#f5f1ea; --line:#e7e0d6; --card:#ffffff;
+    --orange:#E8792B; --orange-d:#C15A2B; --track:#ece4d7;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    background:var(--slate); color:var(--ink);
+    min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  .preview-flag{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    background:#1f272e; color:#cdd6dd; text-align:center;
+    font-size:12px; letter-spacing:.03em; padding:6px 10px; font-weight:600;
+  }
+  .wrap{ max-width:640px; margin:0 auto; padding:64px 20px 56px; }
+  .brandbar{ text-align:center; margin-bottom:22px; }
+  .brandbar .badge{
+    display:inline-block; background:var(--orange-d); color:#fff;
+    font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    padding:7px 13px; border-radius:4px;
+  }
+  .card{
+    background:var(--card); border-radius:16px; padding:34px 32px 30px;
+    box-shadow:0 20px 50px rgba(0,0,0,.28);
+  }
+  @media(max-width:560px){ .wrap{padding:60px 14px 40px} .card{padding:26px 20px 24px} }
+
+  /* progress */
+  .qmeta{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .qnum{ font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:0; }
+  .track{ height:9px; background:var(--track); border-radius:999px; overflow:hidden; margin-bottom:22px; }
+  .track>i{ display:block; height:100%; width:0; background:linear-gradient(90deg,#FF8A2B,#E8792B); border-radius:999px; transition:width .35s ease; }
+
+  h1.hero{ font-size:38px; line-height:1.08; font-weight:800; letter-spacing:-.02em; margin:0 0 14px; color:#fff; text-align:center; }
+  .hero-sub{ color:#c3ccd3; text-align:center; font-size:17px; line-height:1.5; margin:0 auto 26px; max-width:460px; }
+  .chips{ text-align:center; color:#9fb0b8; font-size:14px; margin-bottom:30px; }
+
+  .qtitle{ font-size:22px; line-height:1.3; font-weight:750; margin:0 0 7px; color:var(--ink); }
+  .qhelp{ font-size:14.5px; line-height:1.5; color:var(--muted); margin:0 0 20px; }
+
+  .opts{ display:flex; flex-direction:column; gap:11px; }
+  .opt{
+    display:block; width:100%; text-align:left; cursor:pointer;
+    border:1.5px solid var(--line); background:#fcfaf6; border-radius:11px;
+    padding:15px 16px; font-size:15.5px; line-height:1.4; color:var(--ink);
+    transition:border-color .15s, background .15s, transform .05s;
+  }
+  .opt:hover{ border-color:var(--orange); background:#fff7f0; }
+  .opt:active{ transform:scale(.995); }
+  .opt.sel{ border-color:var(--orange); background:#fff2e6; box-shadow:0 0 0 3px rgba(232,121,43,.14); }
+
+  .nav{ display:flex; justify-content:space-between; align-items:center; margin-top:24px; }
+  .back{ background:none; border:none; color:var(--muted); font-size:14.5px; cursor:pointer; padding:8px 4px; }
+  .back:hover{ color:var(--ink); }
+  .btn{
+    display:inline-block; border:none; cursor:pointer; background:var(--orange-d); color:#fff;
+    font-size:16px; font-weight:700; padding:14px 26px; border-radius:9px; transition:background .15s, opacity .15s;
+  }
+  .btn:hover{ background:#a94a21; }
+  .btn.block{ width:100%; text-align:center; }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; }
+  .btn-wide{ margin-top:26px; }
+
+  /* gate */
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:13px; font-weight:650; color:var(--ink); margin-bottom:6px; }
+  .field input{
+    width:100%; border:1.5px solid var(--line); border-radius:9px; padding:13px 14px;
+    font-size:16px; color:var(--ink); background:#fcfaf6; font-family:inherit;
+  }
+  .field input:focus{ outline:none; border-color:var(--orange); background:#fff; }
+  .optional{ color:var(--muted); font-weight:400; }
+  .gate-note{ font-size:12.5px; color:var(--muted); margin-top:12px; line-height:1.5; }
+
+  /* result */
+  .score-ring{ text-align:center; margin:4px 0 6px; }
+  .score-num{ font-size:68px; font-weight:800; line-height:1; letter-spacing:-.03em; }
+  .score-of{ font-size:20px; color:var(--muted); font-weight:600; }
+  .band{ text-align:center; font-size:15px; font-weight:750; letter-spacing:.04em; text-transform:uppercase; margin:8px 0 2px; }
+  .gap{ background:#fff4e9; border:1px solid #f3dcc3; border-radius:11px; padding:15px 16px; margin:20px 0; font-size:15px; line-height:1.5; color:var(--ink); }
+  .resblurb{ font-size:15.5px; line-height:1.6; color:#3b454e; margin:16px 0; }
+  .resblurb strong{ color:var(--ink); }
+  .postq{ border-top:1px solid var(--line); margin-top:26px; padding-top:22px; }
+  .postq .qtitle{ font-size:16.5px; }
+  .mini-opts{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{ border:1.5px solid var(--line); background:#fcfaf6; border-radius:999px; padding:9px 14px; font-size:14px; cursor:pointer; color:var(--ink); }
+  .chip:hover{ border-color:var(--orange); }
+  .chip.sel{ border-color:var(--orange); background:#fff2e6; }
+  .hidden{ display:none !important; }
+  .cta-row{ margin-top:26px; text-align:center; }
+  .foot{ text-align:center; color:#8a99a2; font-size:12.5px; margin-top:26px; }
+</style>
+</head>
+<body>
+<div class="preview-flag">PREVIEW - v2 draft for review. Responses are NOT saved. The live survey is untouched.</div>
+
+<div class="wrap">
+  <div class="brandbar"><span class="badge">The AI Replaceability Check</span></div>
+
+  <!-- INTRO -->
+  <section id="intro">
+    <h1 class="hero">How easily could AI replace you?</h1>
+    <p class="hero-sub">10 quick questions about the work you actually do. An honest score out of 100, on screen the moment you finish.</p>
+    <div class="chips">About 4 minutes&nbsp;&nbsp;&middot;&nbsp;&nbsp;10 questions&nbsp;&nbsp;&middot;&nbsp;&nbsp;No account</div>
+    <div class="card" style="text-align:center">
+      <p class="qhelp" style="margin-bottom:18px">We tailor the questions to your role, so this is built for the job you actually do - not IT in general.</p>
+      <button class="btn block" onclick="start()">Start the check &rarr;</button>
+    </div>
+    <div class="foot">Built by Readynez. We train thousands of IT professionals across Europe and the UK.</div>
+  </section>
+
+  <!-- QUESTION -->
+  <section id="qscreen" class="hidden">
+    <div class="card">
+      <div class="qmeta"><p class="qnum" id="qnum">Question 1 of 10</p></div>
+      <div class="track"><i id="bar"></i></div>
+      <h2 class="qtitle" id="qtitle"></h2>
+      <p class="qhelp" id="qhelp"></p>
+      <div class="opts" id="opts"></div>
+      <div class="nav">
+        <button class="back" id="backbtn" onclick="back()">&larr; Back</button>
+        <span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- GATE -->
+  <section id="gate" class="hidden">
+    <div class="card">
+      <h2 class="qtitle">Your result is ready.</h2>
+      <p class="qhelp">Tell us where to show it. We'll put your score on the next screen right away.</p>
+      <div class="field">
+        <label>First name <span class="optional">(optional)</span></label>
+        <input id="fname" type="text" autocomplete="given-name" placeholder="What should we call you?">
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input id="email" type="email" autocomplete="email" placeholder="you@company.com">
+      </div>
+      <button class="btn block btn-wide" onclick="showResult()">Show my score &rarr;</button>
+      <p class="gate-note" id="gatenote">We'll email your result and a short, no-pressure guide on staying relevant as AI reshapes IT roles. Unsubscribe anytime.</p>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="hidden">
+    <div class="card">
+      <div class="score-ring">
+        <span class="score-num" id="scorenum">0</span><span class="score-of"> / 100</span>
+      </div>
+      <div class="band" id="bandlabel"></div>
+      <p class="qhelp" style="text-align:center" id="bandline"></p>
+
+      <div class="gap" id="gapbox"></div>
+
+      <p class="resblurb" id="blurb"></p>
+
+      <!-- optional post-score -->
+      <div class="postq">
+        <h3 class="qtitle">Two quick ones before you go</h3>
+        <p class="qhelp" id="pname" style="margin-bottom:14px">How much time do you put into learning new AI tools each week?</p>
+        <div class="mini-opts" id="post1">
+          <button class="chip" onclick="pick(this,'post1')">Less than an hour</button>
+          <button class="chip" onclick="pick(this,'post1')">1&ndash;3 hours</button>
+          <button class="chip" onclick="pick(this,'post1')">3+ hours</button>
+        </div>
+        <p class="qhelp" style="margin:18px 0 10px">Does your employer offer AI training?</p>
+        <div class="mini-opts" id="post2">
+          <button class="chip" onclick="pick(this,'post2')">Yes</button>
+          <button class="chip" onclick="pick(this,'post2')">No</button>
+          <button class="chip" onclick="pick(this,'post2')">Not sure</button>
+        </div>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn" id="cta" href="https://www.readynez.com/" target="_blank" rel="noopener">See the free webinar series &rarr;</a>
+      </div>
+      <div class="foot">Certifications still matter. The roles are changing, not disappearing - we'll show you where to move.</div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ---------- question bank ---------- */
+var ROLE = {
+  id:'role', scored:false,
+  title:'Which of these is closest to your job?',
+  help:"Pick the one that fits best - we'll tailor the next few questions to your role.",
+  opts:[
+    {t:'Software development / engineering', v:'dev'},
+    {t:'Cybersecurity / IT security', v:'sec'},
+    {t:'I manage an IT team', v:'mgr'},
+    {t:"I'm an IT leader (director, head, VP, or C-level)", v:'lead'},
+    {t:'Something else in IT', v:'gen'}
+  ]
+};
+var CORE = [
+  { id:'routine', title:'How much of your work is the same kind of task over and over?',
+    help:"Think about a normal week - how much of it could be written down as a step-by-step process someone else could follow.",
+    opts:[ {t:'Most of my week is repeatable, step-by-step work',p:3},
+           {t:'About half repeatable, half new problems',p:2},
+           {t:'Mostly new problems, with some routine work',p:1},
+           {t:"Almost every week brings something I've never done before",p:0} ] },
+  { id:'owner', title:'When work lands on your desk, what do you usually get?',
+    help:'How finished is the task by the time it reaches you?',
+    opts:[ {t:"A clear ticket or instructions - I do what's asked",p:3},
+           {t:'A goal - I work out how to get there',p:2},
+           {t:'A fuzzy problem - I figure out what actually needs solving',p:1},
+           {t:'A result I fully own - including whether it was the right thing to do at all',p:0} ] },
+  { id:'verify', title:'If AI did your work and got it confidently wrong, what happens next?',
+    help:'AI often sounds sure while being wrong - a made-up answer, a hidden side effect, a missed risk. Who catches that?',
+    opts:[ {t:"I'd probably miss it too - I couldn't easily tell it was wrong",p:3},
+           {t:'Someone more senior would catch it',p:2},
+           {t:"I'd catch most of it when I review",p:1},
+           {t:"Catching it is literally my job - I decide what's right and what we do about it",p:0} ] }
+];
+var BRANCH = {
+  dev:[
+    { id:'d1', title:'What kind of coding fills most of your days?', help:'The work you spend the most hours on.',
+      opts:[ {t:'Mostly standard stuff - CRUD, boilerplate, tests, known-pattern features',p:3},
+             {t:'A mix of routine work and genuinely new problems',p:2},
+             {t:'Mostly new problems with no template to copy from',p:1},
+             {t:'I mostly design how systems fit together; I write less hands-on code than I used to',p:0} ] },
+    { id:'d2', title:'When a feature request is vague, who makes it clear?', help:'Who turns "we want X, sort of" into something buildable?',
+      opts:[ {t:'Someone hands me the finished spec - I just build it',p:3},
+             {t:'I ask questions until it’s clear, then build',p:2},
+             {t:'I work directly with the stakeholder to define it',p:1},
+             {t:'I decide what we build and why - and I’ll push back on the request itself',p:0} ] },
+    { id:'d3', title:"If AI wrote 80% of your current code tomorrow, what's left that's yours?", help:"Be honest about what AI couldn't hand off.",
+      opts:[ {t:'Honestly, not much I could point to',p:3},
+             {t:'Reviewing and fixing what it produces',p:2},
+             {t:'The hard 20% it keeps getting wrong',p:1},
+             {t:"The whole problem - the trade-offs and system design it can't see",p:0} ] },
+    { id:'d4', title:'Your real value to the team is…', help:'What would the team miss most if you left?',
+      opts:[ {t:'How fast I ship well-defined tickets',p:3},
+             {t:'My breadth across the codebase',p:2},
+             {t:"My judgment on what's worth building, and how",p:1},
+             {t:"I'm who people come to when it's unclear or on fire",p:0} ] }
+  ],
+  sec:[
+    { id:'s1', title:'What does most of your day actually look like?', help:'Where your hours really go.',
+      opts:[ {t:'Working the alert queue - triage, enrichment, closing tickets',p:3},
+             {t:'Triage plus some real investigation',p:2},
+             {t:'Deep investigations and threat hunting',p:1},
+             {t:"I design detections and run incidents - the queue is someone else's job",p:0} ] },
+    { id:'s2', title:'When an alert fires, what’s your job?', help:"What you're actually expected to do with it.",
+      opts:[ {t:'Follow the runbook step by step',p:3},
+             {t:"Follow it, but I know when it's wrong",p:2},
+             {t:"Investigate where there's no runbook",p:1},
+             {t:'Decide what the whole org does next, under real uncertainty',p:0} ] },
+    { id:'s3', title:'If AI handled all your Tier-1 triage and false-positive filtering tomorrow, you’d be…', help:'Your honest first reaction.',
+      opts:[ {t:"Worried - that's most of what I do",p:3},
+             {t:"Okay, but I'd need to level up fast",p:2},
+             {t:"Relieved - I'd finally get to the hard stuff",p:1},
+             {t:'Unaffected - I already work above that layer',p:0} ] },
+    { id:'s4', title:'Against a real, adapting attacker, your edge is…', help:"What you bring that a tool alone can't.",
+      opts:[ {t:'Speed and volume on known patterns',p:3},
+             {t:'Knowing our environment well',p:2},
+             {t:"Out-thinking an attacker who's actively changing tactics",p:1},
+             {t:'Leading the response and owning the risk decision',p:0} ] }
+  ],
+  mgr:[
+    { id:'m1', title:'Where does most of your week go?', help:'The work that actually fills your calendar.',
+      opts:[ {t:'Status reports, standup summaries, scheduling, routine approvals',p:3},
+             {t:'Coordinating, plus some real decisions',p:2},
+             {t:'Prioritizing, deciding, unblocking people',p:1},
+             {t:"Developing my people and owning the results we're measured on",p:0} ] },
+    { id:'m2', title:'If AI made everyone on your team 40% more productive, your team would…', help:'Think about what that does to your role specifically.',
+      opts:[ {t:"Shrink - and I'd have to justify why I'm still needed",p:3},
+             {t:'Stay the same size and just do more',p:2},
+             {t:"Grow - we'd take on bigger things",p:1},
+             {t:"Size isn't the point - my value is judgment and people, not headcount",p:0} ] },
+    { id:'m3', title:'Your boss values you mostly for…', help:"The real reason you're in the role.",
+      opts:[ {t:'Keeping information flowing and status visible',p:3},
+             {t:'Hitting delivery on known work',p:2},
+             {t:"Making good calls when it's hard",p:1},
+             {t:"Building a team that performs even when I'm not in the room",p:0} ] },
+    { id:'m4', title:"How involved are you in bringing AI into your team's work?", help:'Your role in it, not your company’s.',
+      opts:[ {t:"Not really - I'm waiting to see how it shakes out",p:3},
+             {t:'I let people experiment on their own',p:2},
+             {t:"I'm actively testing tools with the team",p:1},
+             {t:"I'm redesigning how we work around AI",p:0} ] }
+  ],
+  lead:[
+    { id:'l1', title:'In the exec room, how are you seen?', help:'How the business actually thinks of you.',
+      opts:[ {t:'The person who keeps the tech running',p:3},
+             {t:'A reliable delivery owner',p:2},
+             {t:'A strategic partner on the big bets',p:1},
+             {t:'The one who turns technology into business results the board can feel',p:0} ] },
+    { id:'l2', title:'When the board asks "what’s our AI ROI?", you…', help:'Your honest position today.',
+      opts:[ {t:"Don't have a clear answer yet",p:3},
+             {t:'Can point to a few pilots',p:2},
+             {t:'Have a strategy and early numbers',p:1},
+             {t:'Set the agenda - I told them what to expect before they asked',p:0} ] },
+    { id:'l3', title:"What's most of your output?", help:'What you actually produce in a given month.',
+      opts:[ {t:'Status decks, vendor comparisons, roadmap docs',p:3},
+             {t:'Planning and reporting',p:2},
+             {t:'High-stakes decisions and trade-offs',p:1},
+             {t:'Reshaping the org - who we hire, who we reskill, how we operate',p:0} ] },
+    { id:'l4', title:'Your hardest-to-replace skill is…', help:"The thing that's genuinely yours.",
+      opts:[ {t:'My technical depth',p:3},
+             {t:'Knowing our systems and history',p:2},
+             {t:'My network and vendor relationships',p:1},
+             {t:'Judgment on bet-the-company calls, and leading people through change',p:0} ] }
+  ],
+  gen:[
+    { id:'g1', title:'How much of your day-to-day could AI already do well?', help:'The routine, well-defined parts of your work.',
+      opts:[ {t:'A lot of it',p:3},
+             {t:'Some of it',p:2},
+             {t:'A few things, but most needs judgment',p:1},
+             {t:'Very little - my work is mostly judgment and new problems',p:0} ] },
+    { id:'g2', title:'When you work, you’re mostly…', help:'How set the path is before you start.',
+      opts:[ {t:'Following set processes',p:3},
+             {t:'Following them, but adapting when needed',p:2},
+             {t:'Handling situations with no set process',p:1},
+             {t:'Deciding what the process should even be',p:0} ] },
+    { id:'g3', title:'Your real value is…', help:'What would be missed most if you left.',
+      opts:[ {t:'How reliably I get through defined work',p:3},
+             {t:'My range across different tasks',p:2},
+             {t:'My judgment when things are unclear',p:1},
+             {t:"I own outcomes and the call on what's right",p:0} ] },
+    { id:'g4', title:'If AI did most of your tasks, what’s left that’s yours?', help:'Be honest about what only you can do.',
+      opts:[ {t:"Honestly, I'm not sure what only I can do",p:3},
+             {t:"Checking and fixing AI's output",p:2},
+             {t:'The hard problems it gets wrong',p:1},
+             {t:'Defining the problem and owning the decision',p:0} ] }
+  ]
+};
+var CLOSE = [
+  { id:'proact', title:'When it comes to new AI tools in your field, which sounds most like you?',
+    help:'Be honest - there are no wrong answers, but some are more revealing than others.',
+    opts:[ {t:"I mostly avoid them, or I haven't really started",p:3},
+           {t:"I use the ones I'm handed, but I don't go looking - and I don't always check what they produce",p:3},
+           {t:'I keep up - I try new tools as they appear and I verify their output',p:1},
+           {t:'I actively hunt for new tools, test them, and push my team or management to adopt what works',p:0} ] },
+  { id:'gut', scored:false, title:'Gut check: how replaceable by AI do you feel over the next 3 years?',
+    help:'Your honest gut feeling - before we show you the number.',
+    opts:[ {t:'Not at all', v:10},{t:'Somewhat', v:40},{t:'Fairly', v:65},{t:'Very', v:85} ] }
+];
+
+/* ---------- state ---------- */
+var flow=[], step=0, answers={};
+
+function start(){
+  document.getElementById('intro').classList.add('hidden');
+  flow=[ROLE]; step=0; answers={};
+  document.getElementById('qscreen').classList.remove('hidden');
+  render();
+}
+function buildFlow(role){
+  flow = [ROLE].concat(CORE, BRANCH[role], CLOSE);
+}
+function render(){
+  var q=flow[step];
+  document.getElementById('qnum').textContent='Question '+(step+1)+' of 10';
+  document.getElementById('bar').style.width=Math.round((step+1)/10*100)+'%';
+  document.getElementById('qtitle').textContent=q.title;
+  document.getElementById('qhelp').textContent=q.help;
+  var box=document.getElementById('opts'); box.innerHTML='';
+  q.opts.forEach(function(o,i){
+    var b=document.createElement('button');
+    b.className='opt'+(answers[q.id]&&answers[q.id].i===i?' sel':'');
+    b.textContent=o.t;
+    b.onclick=function(){ choose(q,o,i); };
+    box.appendChild(b);
+  });
+  document.getElementById('backbtn').style.visibility = step===0 ? 'hidden':'visible';
+}
+function choose(q,o,i){
+  answers[q.id]={i:i, p:(typeof o.p==='number'?o.p:0), v:o.v};
+  if(q.id==='role'){ buildFlow(o.v); }
+  // reflect selection briefly then advance
+  render();
+  setTimeout(next, 180);
+}
+function next(){
+  if(step < flow.length-1){ step++; render(); }
+  else { // finished questions -> gate
+    document.getElementById('qscreen').classList.add('hidden');
+    document.getElementById('gate').classList.remove('hidden');
+  }
+}
+function back(){
+  if(step>0){ step--; render(); }
+}
+
+/* ---------- scoring ---------- */
+function computeScore(){
+  var sum=0,max=0;
+  flow.forEach(function(q){
+    if(q.scored===false) return;
+    if(q.id==='gut') return;
+    max+=3;
+    if(answers[q.id]) sum+=answers[q.id].p;
+  });
+  if(max===0) max=1;
+  return Math.round(sum/max*100);
+}
+function bandFor(score){
+  if(score>=60) return {k:'High', c:'#b23b1e'};
+  if(score>=35) return {k:'Moderate', c:'#C15A2B'};
+  return {k:'Low', c:'#2e7d53'};
+}
+function showResult(){
+  var score=computeScore();
+  var band=bandFor(score);
+  document.getElementById('gate').classList.add('hidden');
+  document.getElementById('result').classList.remove('hidden');
+
+  var name=(document.getElementById('fname').value||'').trim();
+  var el=document.getElementById('scorenum'); el.style.color=band.c;
+  // count up
+  var n=0; var tick=setInterval(function(){ n+=Math.ceil(score/28)||1; if(n>=score){n=score; clearInterval(tick);} el.textContent=n; },22);
+
+  document.getElementById('bandlabel').textContent=band.k.toUpperCase()+' REPLACEABILITY';
+  document.getElementById('bandlabel').style.color=band.c;
+
+  var COPY={
+    High:{
+      line:"A lot of what you do every day is exactly what AI is getting good at.",
+      body:"A score of "+score+" means a big share of your work is the routine, repeatable kind AI already handles well. That doesn't mean your job vanishes. It means the things that keep you valuable are the human parts: the judgment calls, owning the outcome, and catching what AI gets wrong. The good news is you're seeing this now, while you've still got plenty of room to move toward that ground."
+    },
+    Moderate:{
+      line:"You're right on the line - part of your work is safe, part of it is in reach.",
+      body:"A score of "+score+" means some of what you do is the kind of work AI is quickly taking over, and some of it sits where AI is still weak: the messy problems, the judgment calls, owning the result. Which way you lean over the next couple of years is still your choice, and spotting it this early is exactly when it's easiest to shift toward the safe side."
+    },
+    Low:{
+      line:"Most of your work sits where AI is still weak, and that's a good place to be.",
+      body:"A score of "+score+" is a good sign. The core of your job is the stuff AI struggles with: deciding what's right, solving problems with no template, and owning the outcome. AI will change how you work, but it's a long way from replacing you. The move now is to stay there on purpose - keep taking the ambiguous, high-judgment work only a person can own."
+    }
+  };
+  var line=document.getElementById('bandline');
+  line.textContent=COPY[band.k].line;
+  line.style.color='#2b343c'; line.style.fontWeight='650'; line.style.fontSize='17px'; line.style.lineHeight='1.45';
+
+  // gap vs gut
+  var gut = answers['gut'] ? answers['gut'].v : null;
+  var gapbox=document.getElementById('gapbox');
+  if(gut!==null){
+    var feltBand=bandFor(gut).k;
+    var order={Low:0,Moderate:1,High:2};
+    var intro = name ? (name+', ') : '';
+    var msg;
+    if(order[band.k] > order[feltBand])
+      msg = intro+"you rated yourself <strong>"+feltBand.toLowerCase()+"</strong> risk - but your answers point to <strong>"+band.k.toLowerCase()+"</strong>. That gap is the part worth paying attention to.";
+    else if(order[band.k] < order[feltBand])
+      msg = intro+"you rated yourself <strong>"+feltBand.toLowerCase()+"</strong> risk, and your answers actually look <strong>"+band.k.toLowerCase()+"</strong>. Good instinct to check - now protect that ground.";
+    else
+      msg = intro+"you rated yourself <strong>"+feltBand.toLowerCase()+"</strong> risk, and your answers line up. <strong>"+band.k+"</strong> it is.";
+    gapbox.innerHTML=msg;
+  } else { gapbox.classList.add('hidden'); }
+
+  // plain-language explanation of the score
+  document.getElementById('blurb').textContent=COPY[band.k].body;
+
+  window.scrollTo(0,0);
+}
+function pick(btn,group){
+  document.querySelectorAll('#'+group+' .chip').forEach(function(c){c.classList.remove('sel');});
+  btn.classList.add('sel');
+}
+</script>
+</body>
+</html>
