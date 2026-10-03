@@ -319,21 +319,26 @@ var BRANCH = {
              {t:'Triage plus some real investigation',p:2},
              {t:'Deep investigations and threat hunting',p:1},
              {t:"I design detections and run incidents - the queue is someone else's job",p:0} ] },
-    { id:'s2', title:'When an alert fires, what’s your job?', help:"What you're actually expected to do with it.",
-      opts:[ {t:'Follow the runbook step by step',p:3},
-             {t:"Follow it, but I know when it's wrong",p:2},
-             {t:"Investigate where there's no runbook",p:1},
-             {t:'Decide what the whole org does next, under real uncertainty',p:0} ] },
     { id:'s3', title:'If AI took over your routine alert triage and weeding out false alarms tomorrow, you’d be…', help:'Your honest first reaction.',
       opts:[ {t:"Worried - that's most of what I do",p:3},
              {t:"Okay, but I'd need to level up fast",p:2},
              {t:"Relieved - I'd finally get to the hard stuff",p:1},
              {t:'Unaffected - I already work above that layer',p:0} ] },
+    { id:'s6', title:'Attackers have AI now too - faster phishing, auto-written malware, deepfake social engineering. Where does that leave you?', help:'Be honest about how much your defense has actually changed.',
+      opts:[ {t:"I'm mostly defending the way I always have",p:3},
+             {t:"I know it's coming but haven't really changed how I work",p:2},
+             {t:'I actively test our defenses against AI-driven attacks',p:1},
+             {t:'I’m rebuilding our security posture around AI-powered threats',p:0} ] },
     { id:'s4', title:'Against a real, adapting attacker, your edge is…', help:"What you bring that a tool alone can't.",
       opts:[ {t:'Speed and volume on known patterns',p:3},
              {t:'Knowing our environment well',p:2},
              {t:"Out-thinking an attacker who's actively changing tactics",p:1},
              {t:'Leading the response and owning the risk decision',p:0} ] },
+    { id:'s7', title:'Engineers are shipping AI-written code faster than anyone can review it. Your part in that?', help:"What you actually do with code AI wrote and you didn't.",
+      opts:[ {t:'I review roughly what I’m handed and move on',p:3},
+             {t:'I run the usual scanners over it',p:2},
+             {t:'I catch the quiet vulnerabilities AI slips in',p:1},
+             {t:'I set the rules for what AI-written code is even allowed to ship',p:0} ] },
     { id:'s5', title:'How do you actually use AI in your security work?', help:'Where AI fits into how you work today.',
       opts:[ {t:'I barely use it',p:3},
              {t:'It summarizes alerts and findings and I mostly trust its read',p:2},
@@ -448,6 +453,8 @@ var WHY = {
   s2:"Following a runbook is automatable; deciding what to do when there's no runbook isn't. This shows which one your role leans on.",
   s3:"Your gut reaction is telling. If losing the routine work would worry you, a lot of your day may be automatable.",
   s4:"AI matches known patterns well, but can't out-think a live attacker or own the risk call. That's where human security value sits.",
+  s6:"Attackers are already using AI to move faster and hit harder. Defenders who adapt to that stay essential; those still fighting the last war fall behind.",
+  s7:"As AI writes more of the code, someone has to catch what it gets dangerously wrong. Being that last line of judgment is hard to automate away.",
   m1:"Moving information around (reports, status, scheduling) is easy to automate. Developing people and owning outcomes is not.",
   m2:"If AI shrinks your team, the headcount that justified your role shrinks too, unless your value is judgment and people rather than team size.",
   m3:"Being an information relay is the automatable side of management. Building a team that runs without you is the human side.",
@@ -540,17 +547,19 @@ function start(){
 }
 function buildFlow(role){ flow=[ROLE].concat(CORE, BRANCH[role], CLOSE); }
 
+function totalSteps(){ return flow.length>1 ? flow.length : 11; }
 function setProgress(){
-  var pct=Math.round((step+1)/11*100);
+  var total=totalSteps();
+  var pct=Math.round((step+1)/total*100);
   document.getElementById('bar').style.width=pct+'%';
   document.getElementById('topbar-fill').style.width=pct+'%';
-  document.getElementById('count').textContent=(step+1)+' of 11';
+  document.getElementById('count').textContent=(step+1)+' of '+total;
 }
 function render(){
   var q=flow[step];
   setProgress();
   trackStep();
-  document.getElementById('qnum').textContent='Question '+(step+1)+' of 11';
+  document.getElementById('qnum').textContent='Question '+(step+1)+' of '+totalSteps();
   document.getElementById('qtitle').textContent=q.title;
   document.getElementById('qhelp').textContent=q.help;
   var w=document.getElementById('qwhy');
