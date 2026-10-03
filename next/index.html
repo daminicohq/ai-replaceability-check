@@ -5,135 +5,173 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The AI Replaceability Check</title>
 <meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600;1,9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --slate:#394651; --slate-d:#2f3a44; --ink:#273039; --muted:#5d6b76;
-    --cream:#f5f1ea; --line:#e7e0d6; --card:#ffffff;
-    --orange:#E8792B; --orange-d:#C15A2B; --track:#ece4d7;
+    --bg:#F7F5F2; --ink:#1C1613; --muted:#6f655b; --faint:#9a8f84;
+    --line:#E0DAD5; --card:#ffffff;
+    --accent:#C2410C; --amber:#FF9F45; --amber-ink:#3D1F06;
+    --serif:'Fraunces',Georgia,serif;
+    --sans:'Public Sans',system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
-    background:var(--slate); color:var(--ink);
-    min-height:100vh; -webkit-font-smoothing:antialiased;
-  }
-  .preview-flag{
-    position:fixed; top:0; left:0; right:0; z-index:50;
-    background:#1f272e; color:#cdd6dd; text-align:center;
-    font-size:12px; letter-spacing:.03em; padding:6px 10px; font-weight:600;
-  }
-  .wrap{ max-width:640px; margin:0 auto; padding:64px 20px 56px; }
-  .brandbar{ text-align:center; margin-bottom:22px; }
-  .brandbar .badge{
-    display:inline-block; background:var(--orange-d); color:#fff;
-    font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
-    padding:7px 13px; border-radius:4px;
-  }
-  .card{
-    background:var(--card); border-radius:16px; padding:34px 32px 30px;
-    box-shadow:0 20px 50px rgba(0,0,0,.28);
-  }
-  @media(max-width:560px){ .wrap{padding:60px 14px 40px} .card{padding:26px 20px 24px} }
+  html,body{margin:0;padding:0;background:var(--bg)}
+  body{ font-family:var(--sans); color:var(--ink); -webkit-font-smoothing:antialiased; }
 
-  /* progress */
-  .qmeta{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-  .qnum{ font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:0; }
-  .track{ height:9px; background:var(--track); border-radius:999px; overflow:hidden; margin-bottom:22px; }
-  .track>i{ display:block; height:100%; width:0; background:linear-gradient(90deg,#FF8A2B,#E8792B); border-radius:999px; transition:width .35s ease; }
+  /* top bar */
+  .topbar{ position:sticky; top:0; z-index:40; background:var(--ink); color:#fff;
+    display:flex; align-items:center; justify-content:space-between; padding:11px 20px; font-size:13px; }
+  .topbar .brand b{ font-weight:700; }
+  .topbar .brand span{ color:#b8afa6; margin-left:6px; }
+  .topbar .count{ font-size:12px; letter-spacing:.06em; color:#d9d2ca; font-weight:600; }
+  .topline{ position:sticky; top:41px; z-index:39; height:3px; background:rgba(194,65,12,.14); }
+  .topline>i{ display:block; height:100%; width:0; background:var(--accent); transition:width .35s ease; }
 
-  h1.hero{ font-size:38px; line-height:1.08; font-weight:800; letter-spacing:-.02em; margin:0 0 14px; color:#fff; text-align:center; }
-  .hero-sub{ color:#c3ccd3; text-align:center; font-size:17px; line-height:1.5; margin:0 auto 26px; max-width:460px; }
-  .chips{ text-align:center; color:#9fb0b8; font-size:14px; margin-bottom:30px; }
+  .wrap{ max-width:620px; margin:0 auto; padding:30px 18px 60px; }
+  @media(max-width:560px){ .wrap{padding:22px 12px 44px} }
 
-  .qtitle{ font-size:22px; line-height:1.3; font-weight:750; margin:0 0 7px; color:var(--ink); }
+  .preview-flag{ text-align:center; font-size:11.5px; color:var(--faint); letter-spacing:.02em; margin:0 0 16px; }
+
+  .card{ background:var(--card); border-radius:14px; padding:34px 36px;
+    box-shadow:0 1px 2px rgba(28,22,19,.06), 0 10px 30px rgba(28,22,19,.08); }
+  @media(max-width:560px){ .card{padding:26px 22px} }
+
+  .eyebrow{ font-family:var(--sans); font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); margin:0 0 14px; }
+
+  .pill{ display:inline-block; background:var(--amber); color:var(--amber-ink);
+    font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+    padding:7px 14px; border-radius:999px; }
+  .hero-img{ margin:20px 0 2px; }
+  .hero-img img{ width:100%; height:auto; display:block; border-radius:10px; }
+
+  h1.hero{ font-family:var(--serif); font-size:50px; line-height:1.05; font-weight:700; letter-spacing:-.015em; color:var(--ink); margin:18px 0 0; }
+  h1.hero em{ font-style:italic; color:var(--accent); }
+  .deck{ font-family:var(--serif); font-size:23px; line-height:1.3; font-weight:600; color:var(--accent); margin:18px 0 0; }
+  .body{ font-size:16.5px; line-height:1.6; color:#413a33; margin:18px 0 0; }
+  .fine{ font-size:13px; color:var(--faint); line-height:1.55; margin:16px 0 0; }
+  @media(max-width:560px){ h1.hero{font-size:38px} .deck{font-size:20px} }
+
+  /* question */
+  .qbar{ height:7px; background:#f0e9df; border-radius:999px; overflow:hidden; margin-bottom:20px; }
+  .qbar>i{ display:block; height:100%; width:0; background:linear-gradient(90deg,var(--amber),var(--accent)); border-radius:999px; transition:width .35s ease; }
+  h2.qtitle{ font-family:var(--serif); font-size:28px; line-height:1.25; font-weight:600; color:var(--ink); margin:0 0 6px; }
   .qhelp{ font-size:14.5px; line-height:1.5; color:var(--muted); margin:0 0 20px; }
-  .qwhy{ margin-top:22px; padding:13px 15px; background:#faf5ee; border:1px solid #efe6d8; border-radius:10px; font-size:13.5px; line-height:1.5; color:#6a7680; }
-  .whlabel{ font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--orange-d); margin-right:6px; }
 
-  .opts{ display:flex; flex-direction:column; gap:11px; }
-  .opt{
-    display:block; width:100%; text-align:left; cursor:pointer;
-    border:1.5px solid var(--line); background:#fcfaf6; border-radius:11px;
-    padding:15px 16px; font-size:15.5px; line-height:1.4; color:var(--ink);
-    transition:border-color .15s, background .15s, transform .05s;
-  }
-  .opt:hover{ border-color:var(--orange); background:#fff7f0; }
-  .opt:active{ transform:scale(.995); }
-  .opt.sel{ border-color:var(--orange); background:#fff2e6; box-shadow:0 0 0 3px rgba(232,121,43,.14); }
+  .opts{ display:flex; flex-direction:column; gap:10px; }
+  .opt{ display:flex; align-items:center; gap:13px; width:100%; text-align:left; cursor:pointer;
+    border:1px solid var(--line); background:#fff; border-radius:10px; padding:13px 15px;
+    font-family:var(--sans); font-size:15.5px; line-height:1.4; color:var(--ink);
+    transition:border-color .12s, background .12s, box-shadow .12s; }
+  .opt:hover{ border-color:var(--amber); background:#fffaf4; }
+  .opt{ align-items:flex-start; }
+  .opt .dot{ flex:0 0 auto; width:19px; height:19px; border-radius:999px; border:2px solid #cfc6bc; position:relative; transition:border-color .12s; margin-top:1px; }
+  .opt-text{ display:block; }
+  .opt-sub{ display:block; font-size:12.5px; color:var(--faint); font-weight:400; margin-top:3px; line-height:1.35; }
+  .opt.sel{ border-color:var(--accent); background:#fff6f0; box-shadow:0 0 0 1px var(--accent) inset; }
+  .opt.sel .dot{ border-color:var(--accent); }
+  .opt.sel .dot:after{ content:''; position:absolute; inset:3px; border-radius:999px; background:var(--accent); }
 
-  .nav{ display:flex; justify-content:space-between; align-items:center; margin-top:24px; }
-  .back{ background:none; border:none; color:var(--muted); font-size:14.5px; cursor:pointer; padding:8px 4px; }
-  .back:hover{ color:var(--ink); }
-  .btn{
-    display:inline-block; border:none; cursor:pointer; background:var(--orange-d); color:#fff;
-    font-size:16px; font-weight:700; padding:14px 26px; border-radius:9px; transition:background .15s, opacity .15s;
-  }
-  .btn:hover{ background:#a94a21; }
-  .btn.block{ width:100%; text-align:center; }
-  .btn:disabled{ opacity:.45; cursor:not-allowed; }
-  .btn-wide{ margin-top:26px; }
+  .pickclosest{ margin:12px 2px 0; font-size:12.5px; color:var(--faint); font-style:italic; }
+  .qwhy{ margin-top:16px; padding:13px 15px; background:#faf4ec; border:1px solid #efe4d6; border-radius:10px; font-size:13.5px; line-height:1.5; color:var(--muted); }
+  .whlabel{ font-family:var(--sans); font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); margin-right:7px; }
+
+  .divider{ height:1px; background:var(--line); margin:24px 0 18px; }
+  .nav{ display:flex; justify-content:space-between; align-items:center; }
+  .back{ background:none; border:none; color:var(--ink); font-family:var(--sans); font-weight:700; font-size:15px; cursor:pointer; padding:10px 4px; }
+  .back:hover{ color:var(--accent); }
+  .back[hidden]{ visibility:hidden; }
+
+  .btn{ display:inline-block; cursor:pointer; font-family:var(--sans); font-weight:700; font-size:15.5px;
+    background:var(--amber); color:var(--amber-ink); border:1px solid var(--amber-ink); border-radius:10px;
+    padding:13px 22px; box-shadow:3px 3px 0 0 var(--amber-ink); transition:transform .06s, box-shadow .06s, opacity .12s; text-decoration:none; }
+  .btn:hover{ transform:translate(-1px,-1px); box-shadow:4px 4px 0 0 var(--amber-ink); }
+  .btn:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 0 var(--amber-ink); }
+  .btn[disabled]{ opacity:.4; cursor:not-allowed; box-shadow:3px 3px 0 0 var(--amber-ink); transform:none; }
+  .btn.block{ display:block; width:100%; text-align:center; }
+  .btn-ghost{ background:none; border:1px solid var(--line); box-shadow:none; color:var(--ink); }
+  .btn-ghost:hover{ transform:none; box-shadow:none; border-color:var(--ink); }
+
+  .cta-wrap{ margin-top:26px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
 
   /* gate */
   .field{ margin-bottom:14px; }
-  .field label{ display:block; font-size:13px; font-weight:650; color:var(--ink); margin-bottom:6px; }
-  .field input{
-    width:100%; border:1.5px solid var(--line); border-radius:9px; padding:13px 14px;
-    font-size:16px; color:var(--ink); background:#fcfaf6; font-family:inherit;
-  }
-  .field input:focus{ outline:none; border-color:var(--orange); background:#fff; }
-  .optional{ color:var(--muted); font-weight:400; }
-  .gate-note{ font-size:12.5px; color:var(--muted); margin-top:12px; line-height:1.5; }
+  .field label{ display:block; font-size:13px; font-weight:600; color:var(--ink); margin-bottom:6px; }
+  .field .opt-note{ color:var(--faint); font-weight:400; }
+  .field input{ width:100%; border:1px solid var(--line); border-radius:10px; padding:13px 14px; font-size:16px; font-family:var(--sans); color:var(--ink); background:#fff; }
+  .field input:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
+  .gate-note{ font-size:12.5px; color:var(--faint); margin-top:14px; line-height:1.5; }
+
+  /* teaser (blurred result on the gate) */
+  .teaser{ position:relative; margin:14px 0 22px; }
+  .teaser .masked{ filter:blur(7px); opacity:.9; user-select:none; pointer-events:none; -webkit-user-select:none; }
+  .teaser .lock{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+  .teaser .lock span{ background:rgba(255,255,255,.82); border:1px solid var(--line); border-radius:999px;
+    padding:9px 16px; font-size:13px; font-weight:700; color:var(--ink); box-shadow:0 2px 10px rgba(28,22,19,.08); }
 
   /* result */
-  .score-ring{ text-align:center; margin:4px 0 6px; }
-  .score-num{ font-size:68px; font-weight:800; line-height:1; letter-spacing:-.03em; }
-  .score-of{ font-size:20px; color:var(--muted); font-weight:600; }
-  .band{ text-align:center; font-size:15px; font-weight:750; letter-spacing:.04em; text-transform:uppercase; margin:8px 0 2px; }
-  .gap{ background:#fff4e9; border:1px solid #f3dcc3; border-radius:11px; padding:15px 16px; margin:20px 0; font-size:15px; line-height:1.5; color:var(--ink); }
-  .resblurb{ font-size:15.5px; line-height:1.6; color:#3b454e; margin:16px 0; }
-  .resblurb strong{ color:var(--ink); }
+  .gauge{ display:block; margin:6px auto 2px; }
+  .gauge-num{ font-family:var(--serif); font-weight:700; }
+  .band{ text-align:center; margin-top:4px; }
+  .band .tag{ display:inline-block; font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:7px 14px; border-radius:999px; }
+  .rline{ font-family:var(--serif); font-size:21px; line-height:1.35; font-weight:600; text-align:center; color:var(--ink); margin:16px auto 0; max-width:440px; }
+  .gap{ background:#fdf1e6; border:1px solid #f3dcc5; border-radius:11px; padding:15px 16px; margin:20px 0; font-size:15px; line-height:1.55; color:var(--ink); }
+  .blurb{ font-size:16px; line-height:1.6; color:#413a33; margin:14px 0; }
+  .blurb strong{ color:var(--ink); }
   .postq{ border-top:1px solid var(--line); margin-top:26px; padding-top:22px; }
-  .postq .qtitle{ font-size:16.5px; }
-  .mini-opts{ display:flex; flex-wrap:wrap; gap:8px; }
-  .chip{ border:1.5px solid var(--line); background:#fcfaf6; border-radius:999px; padding:9px 14px; font-size:14px; cursor:pointer; color:var(--ink); }
-  .chip:hover{ border-color:var(--orange); }
-  .chip.sel{ border-color:var(--orange); background:#fff2e6; }
+  .postq h3{ font-family:var(--serif); font-size:19px; font-weight:600; margin:0 0 14px; color:var(--ink); }
+  .mini-label{ font-size:14px; color:var(--muted); margin:0 0 10px; }
+  .mini-opts{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px; }
+  .chip{ border:1px solid var(--line); background:#fff; border-radius:999px; padding:9px 15px; font-family:var(--sans); font-size:14px; cursor:pointer; color:var(--ink); }
+  .chip:hover{ border-color:var(--amber); }
+  .chip.sel{ border-color:var(--accent); background:#fff6f0; }
+
+  .foot{ color:var(--faint); font-size:12.5px; line-height:1.55; margin-top:26px; }
   .hidden{ display:none !important; }
-  .cta-row{ margin-top:26px; text-align:center; }
-  .foot{ text-align:center; color:#8a99a2; font-size:12.5px; margin-top:26px; }
 </style>
 </head>
 <body>
-<div class="preview-flag">PREVIEW - v2 draft for review. Responses are NOT saved. The live survey is untouched.</div>
+<div class="topbar">
+  <div class="brand"><b>Readynez</b> <span>AI Replaceability Check</span></div>
+  <div class="count" id="count"></div>
+</div>
+<div class="topline"><i id="topbar-fill"></i></div>
 
 <div class="wrap">
-  <div class="brandbar"><span class="badge">The AI Replaceability Check</span></div>
+  <p class="preview-flag">Preview &middot; v2 draft for Frank’s review &middot; questions only, nothing is saved &middot; the live survey is untouched</p>
 
   <!-- INTRO -->
   <section id="intro">
-    <h1 class="hero">How easily could AI replace you?</h1>
-    <p class="hero-sub">10 quick questions about the work you actually do. An honest score out of 100, on screen the moment you finish.</p>
-    <div class="chips">About 4 minutes&nbsp;&nbsp;&middot;&nbsp;&nbsp;10 questions&nbsp;&nbsp;&middot;&nbsp;&nbsp;No account</div>
-    <div class="card" style="text-align:center">
-      <p class="qhelp" style="margin-bottom:18px">We tailor the questions to your role, so this is built for the job you actually do - not IT in general.</p>
-      <button class="btn block" onclick="start()">Start the check &rarr;</button>
+    <div class="card">
+      <p class="eyebrow">The AI Replaceability Check &middot; For IT Professionals</p>
+      <span class="pill">Free &middot; About 4 minutes &middot; No account</span>
+      <div class="hero-img"><img src="data:image/jpeg;base64,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" alt="A person asleep at their laptop while an AI figure works behind them, tasks marked complete"></div>
+      <h1 class="hero">How easily could AI <em>replace</em> you?</h1>
+      <p class="deck">Most IT professionals assume it's someone else's job on the line. The numbers say otherwise.</p>
+      <p class="body">Answer 11 quick questions about your role and the work you actually do. You'll get an AI Replaceability Score from 0 to 100 on screen the moment you finish, plus the gaps that matter most for your role.</p>
+      <div class="cta-wrap">
+        <button class="btn" onclick="start()">Show me how replaceable I am &rarr;</button>
+      </div>
+      <p class="fine">No account. Your individual answers are never shared. We tailor the questions to your role, so this is built for the job you actually do.</p>
     </div>
-    <div class="foot">Built by Readynez. We train thousands of IT professionals across Europe and the UK.</div>
+    <p class="foot">Built by Readynez. We train thousands of IT professionals across Europe and the UK.</p>
   </section>
 
   <!-- QUESTION -->
   <section id="qscreen" class="hidden">
     <div class="card">
-      <div class="qmeta"><p class="qnum" id="qnum">Question 1 of 10</p></div>
-      <div class="track"><i id="bar"></i></div>
+      <div class="qbar"><i id="bar"></i></div>
+      <p class="eyebrow" id="qnum" style="margin-bottom:8px">Question 1 of 11</p>
       <h2 class="qtitle" id="qtitle"></h2>
       <p class="qhelp" id="qhelp"></p>
       <div class="opts" id="opts"></div>
+      <p class="pickclosest" id="pickclosest">Not an exact match? Pick the closest — it doesn't have to be perfect.</p>
       <p class="qwhy" id="qwhy"></p>
+      <div class="divider"></div>
       <div class="nav">
         <button class="back" id="backbtn" onclick="back()">&larr; Back</button>
-        <span></span>
+        <button class="btn" id="nextbtn" onclick="next()" disabled>Next &rarr;</button>
       </div>
     </div>
   </section>
@@ -141,44 +179,63 @@
   <!-- GATE -->
   <section id="gate" class="hidden">
     <div class="card">
-      <h2 class="qtitle">Your result is ready.</h2>
-      <p class="qhelp">Tell us where to show it. We'll put your score on the next screen right away.</p>
+      <p class="eyebrow" style="text-align:center">Your AI Replaceability score</p>
+      <svg class="gauge" id="gate-gauge" width="190" height="190" viewBox="0 0 190 190" aria-hidden="true">
+        <circle cx="95" cy="95" r="80" fill="none" stroke="#efe7dc" stroke-width="14"></circle>
+        <circle id="gate-arc" cx="95" cy="95" r="80" fill="none" stroke="#C2410C" stroke-width="14"
+          stroke-linecap="round" stroke-dasharray="502" stroke-dashoffset="502" transform="rotate(-90 95 95)"></circle>
+        <text id="gate-num" class="gauge-num" x="95" y="92" text-anchor="middle" font-size="52" fill="#1C1613">0</text>
+        <text x="95" y="118" text-anchor="middle" font-size="14" fill="#9a8f84" font-family="Public Sans, sans-serif">out of 100</text>
+      </svg>
+      <p class="rline" style="font-size:18px; margin-top:2px">There's your number. Here's what it actually means:</p>
+
+      <div class="teaser">
+        <div class="masked">
+          <div class="band" style="margin-top:6px"><span class="tag" id="gate-tag">Moderate replaceability</span></div>
+          <p class="rline" id="gate-line">You're right on the line - part of your work is safe, part of it is in reach.</p>
+          <p class="blurb" id="gate-body">A score like this means some of what you do is the kind of work AI is quickly taking over, and some of it sits where AI is still weak - the judgment calls and the problems with no template.</p>
+        </div>
+        <div class="lock"><span>&#128274;&nbsp; Enter your details to unlock what your score means</span></div>
+      </div>
+
       <div class="field">
-        <label>First name <span class="optional">(optional)</span></label>
+        <label>First name <span class="opt-note">(optional)</span></label>
         <input id="fname" type="text" autocomplete="given-name" placeholder="What should we call you?">
       </div>
       <div class="field">
         <label>Email</label>
         <input id="email" type="email" autocomplete="email" placeholder="you@company.com">
       </div>
-      <button class="btn block btn-wide" onclick="showResult()">Show my score &rarr;</button>
-      <p class="gate-note" id="gatenote">We'll email your result and a short, no-pressure guide on staying relevant as AI reshapes IT roles. Unsubscribe anytime.</p>
+      <button class="btn block" style="margin-top:8px" onclick="showResult()">Show me what my score means &rarr;</button>
+      <p class="gate-note">We'll email your result and a short, no-pressure guide on staying relevant as AI reshapes IT roles. Unsubscribe anytime.</p>
     </div>
   </section>
 
   <!-- RESULT -->
   <section id="result" class="hidden">
     <div class="card">
-      <div class="score-ring">
-        <span class="score-num" id="scorenum">0</span><span class="score-of"> / 100</span>
-      </div>
-      <div class="band" id="bandlabel"></div>
-      <p class="qhelp" style="text-align:center" id="bandline"></p>
-
+      <p class="eyebrow" style="text-align:center">Your AI Replaceability</p>
+      <svg class="gauge" id="gauge" width="190" height="190" viewBox="0 0 190 190" aria-hidden="true">
+        <circle cx="95" cy="95" r="80" fill="none" stroke="#efe7dc" stroke-width="14"></circle>
+        <circle id="gauge-arc" cx="95" cy="95" r="80" fill="none" stroke="#C2410C" stroke-width="14"
+          stroke-linecap="round" stroke-dasharray="502" stroke-dashoffset="502" transform="rotate(-90 95 95)"></circle>
+        <text id="gauge-num" class="gauge-num" x="95" y="92" text-anchor="middle" font-size="52" fill="#1C1613">0</text>
+        <text x="95" y="118" text-anchor="middle" font-size="14" fill="#9a8f84" font-family="Public Sans, sans-serif">out of 100</text>
+      </svg>
+      <div class="band"><span class="tag" id="bandtag"></span></div>
+      <p class="rline" id="rline"></p>
       <div class="gap" id="gapbox"></div>
+      <p class="blurb" id="blurb"></p>
 
-      <p class="resblurb" id="blurb"></p>
-
-      <!-- optional post-score -->
       <div class="postq">
-        <h3 class="qtitle">Two quick ones before you go</h3>
-        <p class="qhelp" id="pname" style="margin-bottom:14px">How much time do you put into learning new AI tools each week?</p>
+        <h3>Two quick ones before you go</h3>
+        <p class="mini-label">How much time do you put into learning new AI tools each week?</p>
         <div class="mini-opts" id="post1">
           <button class="chip" onclick="pick(this,'post1')">Less than an hour</button>
           <button class="chip" onclick="pick(this,'post1')">1&ndash;3 hours</button>
           <button class="chip" onclick="pick(this,'post1')">3+ hours</button>
         </div>
-        <p class="qhelp" style="margin:18px 0 10px">Does your employer offer AI training?</p>
+        <p class="mini-label" style="margin-top:16px">Does your employer offer AI training?</p>
         <div class="mini-opts" id="post2">
           <button class="chip" onclick="pick(this,'post2')">Yes</button>
           <button class="chip" onclick="pick(this,'post2')">No</button>
@@ -186,10 +243,10 @@
         </div>
       </div>
 
-      <div class="cta-row">
-        <a class="btn" id="cta" href="https://www.readynez.com/" target="_blank" rel="noopener">See the free webinar series &rarr;</a>
+      <div class="cta-wrap">
+        <a class="btn" href="https://www.readynez.com/" target="_blank" rel="noopener">See the free webinar series &rarr;</a>
       </div>
-      <div class="foot">Certifications still matter. The roles are changing, not disappearing - we'll show you where to move.</div>
+      <p class="foot">Certifications still matter. The roles are changing, not disappearing - we'll show you where to move.</p>
     </div>
   </section>
 </div>
@@ -201,11 +258,11 @@ var ROLE = {
   title:'Which of these is closest to your job?',
   help:"Pick the one that fits best - we'll tailor the next few questions to your role.",
   opts:[
-    {t:'Software development / engineering', v:'dev'},
-    {t:'Cybersecurity / IT security', v:'sec'},
-    {t:'I manage an IT team', v:'mgr'},
-    {t:"I'm an IT leader (director, head, VP, or C-level)", v:'lead'},
-    {t:'Something else in IT', v:'gen'}
+    {t:'Software development / engineering', sub:'Developer, software engineer, full-stack, backend, frontend, mobile', v:'dev'},
+    {t:'Cybersecurity / IT security', sub:'SOC analyst, security engineer, pentester, blue/red team, GRC', v:'sec'},
+    {t:'I manage an IT team', sub:'Team lead, engineering manager, IT manager, delivery lead', v:'mgr'},
+    {t:"I'm an IT leader (director, head, VP, or C-level)", sub:'CTO, VP of engineering, head of IT, director, principal architect', v:'lead'},
+    {t:'Something else in IT', sub:'Sysadmin, DevOps, cloud, data, QA, networking, IT support', v:'gen'}
   ]
 };
 var CORE = [
@@ -249,7 +306,12 @@ var BRANCH = {
       opts:[ {t:'How fast I ship well-defined tickets',p:3},
              {t:'My breadth across the codebase',p:2},
              {t:"My judgment on what's worth building, and how",p:1},
-             {t:"I'm who people come to when it's unclear or on fire",p:0} ] }
+             {t:"I'm who people come to when it's unclear or on fire",p:0} ] },
+    { id:'d5', title:'How do you actually use AI in your coding?', help:'Where AI fits into how you build today.',
+      opts:[ {t:'I barely use it',p:3},
+             {t:'It writes code for me and I mostly take what looks right',p:2},
+             {t:'I use it daily and review everything it produces',p:1},
+             {t:'I direct it on the hard parts, catch what it gets wrong, and bring good tools to my team',p:0} ] }
   ],
   sec:[
     { id:'s1', title:'What does most of your day actually look like?', help:'Where your hours really go.',
@@ -262,7 +324,7 @@ var BRANCH = {
              {t:"Follow it, but I know when it's wrong",p:2},
              {t:"Investigate where there's no runbook",p:1},
              {t:'Decide what the whole org does next, under real uncertainty',p:0} ] },
-    { id:'s3', title:'If AI handled all your Tier-1 triage and false-positive filtering tomorrow, you’d be…', help:'Your honest first reaction.',
+    { id:'s3', title:'If AI took over your routine alert triage and weeding out false alarms tomorrow, you’d be…', help:'Your honest first reaction.',
       opts:[ {t:"Worried - that's most of what I do",p:3},
              {t:"Okay, but I'd need to level up fast",p:2},
              {t:"Relieved - I'd finally get to the hard stuff",p:1},
@@ -271,7 +333,12 @@ var BRANCH = {
       opts:[ {t:'Speed and volume on known patterns',p:3},
              {t:'Knowing our environment well',p:2},
              {t:"Out-thinking an attacker who's actively changing tactics",p:1},
-             {t:'Leading the response and owning the risk decision',p:0} ] }
+             {t:'Leading the response and owning the risk decision',p:0} ] },
+    { id:'s5', title:'How do you actually use AI in your security work?', help:'Where AI fits into how you work today.',
+      opts:[ {t:'I barely use it',p:3},
+             {t:'It summarizes alerts and findings and I mostly trust its read',p:2},
+             {t:'I use it to speed up triage and investigation, but I verify it',p:1},
+             {t:'I build it into detections, direct it on the hard calls, and bring good tools to the team',p:0} ] }
   ],
   mgr:[
     { id:'m1', title:'Where does most of your week go?', help:'The work that actually fills your calendar.',
@@ -293,7 +360,12 @@ var BRANCH = {
       opts:[ {t:"Not really - I'm waiting to see how it shakes out",p:3},
              {t:'I let people experiment on their own',p:2},
              {t:"I'm actively testing tools with the team",p:1},
-             {t:"I'm redesigning how we work around AI",p:0} ] }
+             {t:"I'm redesigning how we work around AI",p:0} ] },
+    { id:'m5', title:'How do you use AI in your own day-to-day work?', help:'Your personal use, separate from the team.',
+      opts:[ {t:'I barely use it',p:3},
+             {t:'It drafts updates and summaries and I mostly send them as-is',p:2},
+             {t:'I use it daily across my work and check what it gives me',p:1},
+             {t:"I direct it on the harder calls and I know exactly where not to trust it",p:0} ] }
   ],
   lead:[
     { id:'l1', title:'In the exec room, how are you seen?', help:'How the business actually thinks of you.',
@@ -315,7 +387,12 @@ var BRANCH = {
       opts:[ {t:'My technical depth',p:3},
              {t:'Knowing our systems and history',p:2},
              {t:'My network and vendor relationships',p:1},
-             {t:'Judgment on bet-the-company calls, and leading people through change',p:0} ] }
+             {t:'Judgment on bet-the-company calls, and leading people through change',p:0} ] },
+    { id:'l5', title:'How does AI show up in your own work?', help:'Your personal use at the leadership level.',
+      opts:[ {t:"I don't really use it myself yet",p:3},
+             {t:'I use it for the lighter stuff (drafts, summaries) and mostly take what it gives',p:2},
+             {t:'I use it across my work and I check what it gives me',p:1},
+             {t:"I direct it on the high-stakes calls and I'm driving how we adopt it",p:0} ] }
   ],
   gen:[
     { id:'g1', title:'How much of your day-to-day could AI already do well?', help:'The routine, well-defined parts of your work.',
@@ -337,16 +414,21 @@ var BRANCH = {
       opts:[ {t:"Honestly, I'm not sure what only I can do",p:3},
              {t:"Checking and fixing AI's output",p:2},
              {t:'The hard problems it gets wrong',p:1},
-             {t:'Defining the problem and owning the decision',p:0} ] }
+             {t:'Defining the problem and owning the decision',p:0} ] },
+    { id:'g5', title:'How do you actually use AI in your work?', help:'Where AI fits into your day today.',
+      opts:[ {t:'I barely use it',p:3},
+             {t:'It does tasks for me and I mostly take what it gives',p:2},
+             {t:'I use it daily and check its work',p:1},
+             {t:'I direct it on the hard parts and bring good tools to my team',p:0} ] }
   ]
 };
 var CLOSE = [
-  { id:'proact', title:'When it comes to new AI tools in your field, which sounds most like you?',
-    help:'Be honest - there are no wrong answers, but some are more revealing than others.',
-    opts:[ {t:"I mostly avoid them, or I haven't really started",p:3},
-           {t:"I use the ones I'm handed, but I don't go looking - and I don't always check what they produce",p:3},
-           {t:'I keep up - I try new tools as they appear and I verify their output',p:1},
-           {t:'I actively hunt for new tools, test them, and push my team or management to adopt what works',p:0} ] },
+  { id:'trust', title:'When AI gives you an answer or output, how do you treat it?',
+    help:'Your honest habit - not what you think you should do.',
+    opts:[ {t:'I mostly take it as it is - if it looks right, I run with it',p:3},
+           {t:'I give it a quick sanity check',p:2},
+           {t:'I review it carefully and fix what’s off',p:1},
+           {t:"I treat it as a rough draft I own - I stress-test it and I'm accountable for what ships",p:0} ] },
   { id:'gut', scored:false, title:'Gut check: how replaceable by AI do you feel over the next 3 years?',
     help:'Your honest gut feeling - before we show you the number.',
     opts:[ {t:'Not at all', v:10},{t:'Somewhat', v:40},{t:'Fairly', v:65},{t:'Very', v:85} ] }
@@ -378,58 +460,139 @@ var WHY = {
   g2:"Following a set process is automatable; deciding what the process should be isn't.",
   g3:"Reliable throughput on defined work is easy to automate. Owning outcomes and judgment calls is not.",
   g4:"If it's hard to name what only you can do, that's worth knowing now, while there's time to build it.",
-  proact:"The people who actively find, test and champion AI tools tend to come out ahead. Avoiding it, or leaning on it blindly, are both risky.",
+  d5:"How you use AI day to day shows how far you've adapted. Directing it and checking it is what turns AI into your advantage instead of your replacement.",
+  s5:"How you use AI day to day shows how far you've adapted. Directing it and checking it is what turns AI into your advantage instead of your replacement.",
+  m5:"How you use AI day to day shows how far you've adapted. Directing it and checking it is what turns AI into your advantage instead of your replacement.",
+  l5:"How you use AI day to day shows how far you've adapted. Directing it and checking it is what turns AI into your advantage instead of your replacement.",
+  g5:"How you use AI day to day shows how far you've adapted. Directing it and checking it is what turns AI into your advantage instead of your replacement.",
+  trust:"Taking AI output on trust is where mistakes slip through, and it's a habit AI can exploit. People who scrutinize it and own the result stay valuable; those who run with whatever looks right do not.",
   gut:"We'll compare your gut feeling with what your answers actually show. The gap between them is often the most useful part."
 };
 
 /* ---------- state ---------- */
 var flow=[], step=0, answers={};
 
+/* ---------- analytics (anonymous, fires for every visitor) ---------- */
+var _seen={};            // guards each question so a first-view counts once
+var _finished=false;     // guards the "answered everything" event
+function track(name,params){
+  try{ if(typeof gtag==='function') gtag('event',name,params||{}); }catch(e){}
+}
+function roleVal(){ return (answers['role']&&answers['role'].v)||'unknown'; }
+function roleLabel(){ return (answers['role']&&answers['role'].t)||''; }
+function trackStep(){
+  var idx=step+1, q=flow[step];
+  if(_seen[idx]) return;          // already recorded (e.g. navigating Back then forward)
+  _seen[idx]=true;
+  track('survey_step',{ step_number:idx, step_id:q.id, role:roleVal(), total_steps:flow.length });
+}
+
+/* ---------- save responses to sheet (anonymous or with contact) ---------- */
+var ENDPOINT='https://script.google.com/macros/s/AKfycbyRVM0z3cJhCq2K37n3Cu2TTTtTjrW4nlWkf5W2BlSLrkJfdAEJPL8qSGNqW3ajjlM/exec';
+var _saved=false;              // one row per completer, no duplicates
+function buildPayload(){
+  var r=getResult();
+  var gut = answers['gut'] ? answers['gut'].v : null;
+  var ansObj={}, parts=[];
+  flow.forEach(function(q){
+    var a=answers[q.id]; if(!a) return;
+    ansObj[q.id]=a.t;
+    parts.push((a.q||q.id)+': '+a.t);
+  });
+  var nm=(document.getElementById('fname').value||'').trim();
+  var em=(document.getElementById('email').value||'').trim();
+  var hpEl=document.getElementById('website');
+  var hp=(hpEl&&hpEl.value)||'';
+  return {
+    source:'v2', page:'next',
+    role:roleLabel(), roleKey:roleVal(),
+    score:r.score, band:r.band.k,
+    gut: gut!==null ? bandFor(gut).k : '', gutValue: gut,
+    completed:true,
+    name:nm, email:em, noEmail: !em, hp:hp,
+    answers:ansObj,
+    answersText:parts.join('  |  ')
+  };
+}
+function saveResponse(){
+  return; /* preview: nothing is saved */
+  if(_saved) return;
+  if(!_finished) return;        // only store people who answered every question
+  _saved=true;
+  var body=JSON.stringify(buildPayload());
+  try{
+    if(navigator.sendBeacon){
+      navigator.sendBeacon(ENDPOINT, new Blob([body],{type:'text/plain;charset=utf-8'}));
+    } else {
+      fetch(ENDPOINT,{method:'POST',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body:body});
+    }
+  }catch(e){
+    try{ fetch(ENDPOINT,{method:'POST',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body:body}); }catch(e2){}
+  }
+}
+
 function start(){
   document.getElementById('intro').classList.add('hidden');
-  flow=[ROLE]; step=0; answers={};
+  flow=[ROLE]; step=0; answers={}; _seen={}; _finished=false;
+  track('survey_start',{});
   document.getElementById('qscreen').classList.remove('hidden');
   render();
 }
-function buildFlow(role){
-  flow = [ROLE].concat(CORE, BRANCH[role], CLOSE);
+function buildFlow(role){ flow=[ROLE].concat(CORE, BRANCH[role], CLOSE); }
+
+function setProgress(){
+  var pct=Math.round((step+1)/11*100);
+  document.getElementById('bar').style.width=pct+'%';
+  document.getElementById('topbar-fill').style.width=pct+'%';
+  document.getElementById('count').textContent=(step+1)+' of 11';
 }
 function render(){
   var q=flow[step];
-  document.getElementById('qnum').textContent='Question '+(step+1)+' of 10';
-  document.getElementById('bar').style.width=Math.round((step+1)/10*100)+'%';
+  setProgress();
+  trackStep();
+  document.getElementById('qnum').textContent='Question '+(step+1)+' of 11';
   document.getElementById('qtitle').textContent=q.title;
   document.getElementById('qhelp').textContent=q.help;
   var w=document.getElementById('qwhy');
   if(WHY[q.id]){ w.innerHTML='<span class="whlabel">Why we ask</span>'+WHY[q.id]; w.style.display='block'; }
   else { w.style.display='none'; }
+  document.getElementById('pickclosest').style.display = (q.id==='role'||q.id==='gut') ? 'none' : 'block';
   var box=document.getElementById('opts'); box.innerHTML='';
   q.opts.forEach(function(o,i){
     var b=document.createElement('button');
     b.className='opt'+(answers[q.id]&&answers[q.id].i===i?' sel':'');
-    b.textContent=o.t;
+    b.innerHTML='<span class="dot"></span><span class="opt-text">'+o.t+(o.sub?'<span class="opt-sub">'+o.sub+'</span>':'')+'</span>';
     b.onclick=function(){ choose(q,o,i); };
     box.appendChild(b);
   });
-  document.getElementById('backbtn').style.visibility = step===0 ? 'hidden':'visible';
+  document.getElementById('backbtn').hidden = step===0;
+  var nb=document.getElementById('nextbtn');
+  nb.disabled = !answers[q.id];
+  nb.textContent = (step===flow.length-1 ? 'See my result →' : 'Next →');
 }
 function choose(q,o,i){
-  answers[q.id]={i:i, p:(typeof o.p==='number'?o.p:0), v:o.v};
+  answers[q.id]={i:i, p:(typeof o.p==='number'?o.p:0), v:o.v, t:o.t, q:q.title};
   if(q.id==='role'){ buildFlow(o.v); }
-  // reflect selection briefly then advance
   render();
-  setTimeout(next, 180);
 }
 function next(){
-  if(step < flow.length-1){ step++; render(); }
-  else { // finished questions -> gate
+  if(!answers[flow[step].id]) return;
+  if(step < flow.length-1){ step++; render(); window.scrollTo(0,0); }
+  else {
     document.getElementById('qscreen').classList.add('hidden');
+    document.getElementById('count').textContent='';
+    if(!_finished){
+      _finished=true;
+      var fr=getResult();  // they answered every question -> this is the completion metric
+      track('survey_finished_questions',{ role:roleVal(), questions:flow.length, score:fr.score, band:fr.band.k });
+    }
+    enterGate();
     document.getElementById('gate').classList.remove('hidden');
+    track('survey_gate_view',{ role:roleVal() });
+    window.scrollTo(0,0);
   }
 }
-function back(){
-  if(step>0){ step--; render(); }
-}
+function back(){ if(step>0){ step--; render(); window.scrollTo(0,0); } }
 
 /* ---------- scoring ---------- */
 function computeScore(){
@@ -444,24 +607,13 @@ function computeScore(){
   return Math.round(sum/max*100);
 }
 function bandFor(score){
-  if(score>=60) return {k:'High', c:'#b23b1e'};
-  if(score>=35) return {k:'Moderate', c:'#C15A2B'};
-  return {k:'Low', c:'#2e7d53'};
+  if(score>=60) return {k:'High', c:'#b23b1e', bg:'#fbe4db'};
+  if(score>=35) return {k:'Moderate', c:'#C2410C', bg:'#fde9d6'};
+  return {k:'Low', c:'#2e7d53', bg:'#dff0e6'};
 }
-function showResult(){
+function getResult(){
   var score=computeScore();
   var band=bandFor(score);
-  document.getElementById('gate').classList.add('hidden');
-  document.getElementById('result').classList.remove('hidden');
-
-  var name=(document.getElementById('fname').value||'').trim();
-  var el=document.getElementById('scorenum'); el.style.color=band.c;
-  // count up
-  var n=0; var tick=setInterval(function(){ n+=Math.ceil(score/28)||1; if(n>=score){n=score; clearInterval(tick);} el.textContent=n; },22);
-
-  document.getElementById('bandlabel').textContent=band.k.toUpperCase()+' REPLACEABILITY';
-  document.getElementById('bandlabel').style.color=band.c;
-
   var COPY={
     High:{
       line:"A lot of what you do every day is exactly what AI is getting good at.",
@@ -476,11 +628,46 @@ function showResult(){
       body:"A score of "+score+" is a good sign. The core of your job is the stuff AI struggles with: deciding what's right, solving problems with no template, and owning the outcome. AI will change how you work, but it's a long way from replacing you. The move now is to stay there on purpose - keep taking the ambiguous, high-judgment work only a person can own."
     }
   };
-  var line=document.getElementById('bandline');
-  line.textContent=COPY[band.k].line;
-  line.style.color='#2b343c'; line.style.fontWeight='650'; line.style.fontSize='17px'; line.style.lineHeight='1.45';
+  return {score:score, band:band, line:COPY[band.k].line, body:COPY[band.k].body};
+}
+function animateGauge(arcId,numId,score,color){
+  var arc=document.getElementById(arcId), numEl=document.getElementById(numId);
+  var C=502; // 2*pi*80
+  arc.setAttribute('stroke', color);
+  numEl.setAttribute('fill', color);
+  var n=0;
+  var tick=setInterval(function(){
+    n+=Math.ceil(score/28)||1; if(n>=score){n=score; clearInterval(tick);}
+    numEl.textContent=n;
+    arc.setAttribute('stroke-dashoffset', C - C*(n/100));
+  },22);
+}
+/* gate: show the number, blur what it means */
+function enterGate(){
+  var r=getResult();
+  animateGauge('gate-arc','gate-num', r.score, r.band.c);
+  var tag=document.getElementById('gate-tag');
+  tag.textContent=r.band.k+' replaceability';
+  tag.style.color=r.band.c; tag.style.background=r.band.bg;
+  document.getElementById('gate-line').textContent=r.line;
+  document.getElementById('gate-body').textContent=r.body;
+}
+function showResult(){
+  var r=getResult();
+  document.getElementById('gate').classList.add('hidden');
+  document.getElementById('result').classList.remove('hidden');
+  document.getElementById('topbar-fill').style.width='100%';
 
-  // gap vs gut
+  var name=(document.getElementById('fname').value||'').trim();
+  var emailGiven = !!(document.getElementById('email').value||'').trim();
+  track('survey_result_viewed',{ role:roleVal(), score:r.score, band:r.band.k, email_given:emailGiven });
+  animateGauge('gauge-arc','gauge-num', r.score, r.band.c);
+
+  var tag=document.getElementById('bandtag');
+  tag.textContent=r.band.k+' replaceability';
+  tag.style.color=r.band.c; tag.style.background=r.band.bg;
+  document.getElementById('rline').textContent=r.line;
+
   var gut = answers['gut'] ? answers['gut'].v : null;
   var gapbox=document.getElementById('gapbox');
   if(gut!==null){
@@ -488,24 +675,23 @@ function showResult(){
     var order={Low:0,Moderate:1,High:2};
     var intro = name ? (name+', ') : '';
     var msg;
-    if(order[band.k] > order[feltBand])
-      msg = intro+"you rated yourself <strong>"+feltBand.toLowerCase()+"</strong> risk - but your answers point to <strong>"+band.k.toLowerCase()+"</strong>. That gap is the part worth paying attention to.";
-    else if(order[band.k] < order[feltBand])
-      msg = intro+"you rated yourself <strong>"+feltBand.toLowerCase()+"</strong> risk, and your answers actually look <strong>"+band.k.toLowerCase()+"</strong>. Good instinct to check - now protect that ground.";
+    if(order[r.band.k] > order[feltBand])
+      msg = intro+"you rated yourself <strong>"+feltBand.toLowerCase()+"</strong> risk - but your answers point to <strong>"+r.band.k.toLowerCase()+"</strong>. That gap is the part worth paying attention to.";
+    else if(order[r.band.k] < order[feltBand])
+      msg = intro+"you rated yourself <strong>"+feltBand.toLowerCase()+"</strong> risk, and your answers actually look <strong>"+r.band.k.toLowerCase()+"</strong>. Good instinct to check - now protect that ground.";
     else
-      msg = intro+"you rated yourself <strong>"+feltBand.toLowerCase()+"</strong> risk, and your answers line up. <strong>"+band.k+"</strong> it is.";
+      msg = intro+"you rated yourself <strong>"+feltBand.toLowerCase()+"</strong> risk, and your answers line up. <strong>"+r.band.k+"</strong> it is.";
     gapbox.innerHTML=msg;
   } else { gapbox.classList.add('hidden'); }
 
-  // plain-language explanation of the score
-  document.getElementById('blurb').textContent=COPY[band.k].body;
-
+  document.getElementById('blurb').textContent=r.body;
   window.scrollTo(0,0);
 }
 function pick(btn,group){
   document.querySelectorAll('#'+group+' .chip').forEach(function(c){c.classList.remove('sel');});
   btn.classList.add('sel');
 }
+
 </script>
 </body>
 </html>
