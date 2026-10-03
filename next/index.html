@@ -48,6 +48,8 @@
 
   .qtitle{ font-size:22px; line-height:1.3; font-weight:750; margin:0 0 7px; color:var(--ink); }
   .qhelp{ font-size:14.5px; line-height:1.5; color:var(--muted); margin:0 0 20px; }
+  .qwhy{ margin-top:22px; padding:13px 15px; background:#faf5ee; border:1px solid #efe6d8; border-radius:10px; font-size:13.5px; line-height:1.5; color:#6a7680; }
+  .whlabel{ font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--orange-d); margin-right:6px; }
 
   .opts{ display:flex; flex-direction:column; gap:11px; }
   .opt{
@@ -128,6 +130,7 @@
       <h2 class="qtitle" id="qtitle"></h2>
       <p class="qhelp" id="qhelp"></p>
       <div class="opts" id="opts"></div>
+      <p class="qwhy" id="qwhy"></p>
       <div class="nav">
         <button class="back" id="backbtn" onclick="back()">&larr; Back</button>
         <span></span>
@@ -349,6 +352,36 @@ var CLOSE = [
     opts:[ {t:'Not at all', v:10},{t:'Somewhat', v:40},{t:'Fairly', v:65},{t:'Very', v:85} ] }
 ];
 
+/* ---------- why we ask (shown to the respondent) ---------- */
+var WHY = {
+  role:"This tailors the next few questions to the work you actually do.",
+  routine:"The more your work repeats a set pattern, the more of it AI can already do. Work that's different every time is far harder to automate.",
+  owner:"AI is good at doing a task it's handed, but not at deciding what to do. The more you own the what and the why, the harder you are to replace.",
+  verify:"AI is often confidently wrong. Being the person who catches that and makes the final call is what keeps you valuable as AI spreads.",
+  d1:"AI is strongest on standard, pattern-based code. The more your day is new problems and design, the less of it AI can take.",
+  d2:"Turning a vague request into something buildable is human work. If the spec always arrives finished, that part isn't yours to protect.",
+  d3:"It's the honest test: if AI wrote most of your code, what's still clearly yours? The harder that is to answer, the more exposed you are.",
+  d4:"Speed on well-defined tickets is the easiest thing to automate. Being the one others turn to when it's unclear is the hardest.",
+  s1:"Alert-queue work is the first thing AI is taking over in security. The further your day is from the queue, the safer you are.",
+  s2:"Following a runbook is automatable; deciding what to do when there's no runbook isn't. This shows which one your role leans on.",
+  s3:"Your gut reaction is telling. If losing the routine work would worry you, a lot of your day may be automatable.",
+  s4:"AI matches known patterns well, but can't out-think a live attacker or own the risk call. That's where human security value sits.",
+  m1:"Moving information around (reports, status, scheduling) is easy to automate. Developing people and owning outcomes is not.",
+  m2:"If AI shrinks your team, the headcount that justified your role shrinks too, unless your value is judgment and people rather than team size.",
+  m3:"Being an information relay is the automatable side of management. Building a team that runs without you is the human side.",
+  m4:"Managers who actively drive AI adoption become more valuable; those who sit back risk becoming overhead.",
+  l1:"'Keeps the tech running' is a replaceable position. 'Turns technology into business results' is not.",
+  l2:"This shows whether you're reacting to AI pressure or setting the direction. Setting it is the safer place to be.",
+  l3:"Drafting decks and vendor comparisons is increasingly AI-assisted. Reshaping how the organization works is pure human judgment.",
+  l4:"Technical depth alone is becoming a commodity. Judgment on big calls and leading people through change is what lasts.",
+  g1:"The routine, well-defined parts of any job are what AI takes first. The more of your work needs judgment, the safer it is.",
+  g2:"Following a set process is automatable; deciding what the process should be isn't.",
+  g3:"Reliable throughput on defined work is easy to automate. Owning outcomes and judgment calls is not.",
+  g4:"If it's hard to name what only you can do, that's worth knowing now, while there's time to build it.",
+  proact:"The people who actively find, test and champion AI tools tend to come out ahead. Avoiding it, or leaning on it blindly, are both risky.",
+  gut:"We'll compare your gut feeling with what your answers actually show. The gap between them is often the most useful part."
+};
+
 /* ---------- state ---------- */
 var flow=[], step=0, answers={};
 
@@ -367,6 +400,9 @@ function render(){
   document.getElementById('bar').style.width=Math.round((step+1)/10*100)+'%';
   document.getElementById('qtitle').textContent=q.title;
   document.getElementById('qhelp').textContent=q.help;
+  var w=document.getElementById('qwhy');
+  if(WHY[q.id]){ w.innerHTML='<span class="whlabel">Why we ask</span>'+WHY[q.id]; w.style.display='block'; }
+  else { w.style.display='none'; }
   var box=document.getElementById('opts'); box.innerHTML='';
   q.opts.forEach(function(o,i){
     var b=document.createElement('button');
