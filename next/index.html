@@ -516,6 +516,7 @@ function buildPayload(){
   var r=getResult();
   var gut = answers['gut'] ? answers['gut'].v : null;
   var ansObj={}, parts=[];
+  if(answers['role'] && !(flow[0] && flow[0].id==='role')){ ansObj['role']=answers['role'].t; parts.push('Role: '+answers['role'].t); }
   flow.forEach(function(q){
     var a=answers[q.id]; if(!a) return;
     ansObj[q.id]=a.t;
@@ -526,9 +527,10 @@ function buildPayload(){
   var hpEl=document.getElementById('website');
   var hp=(hpEl&&hpEl.value)||'';
   var SEG={dev:'dev', sec:'security', mgr:'manager', lead:'leader', gen:'general'};
+  var pg=(location.pathname+location.search)||'next';
   return {
     version:'2',
-    source:'v2', page:'next', campaign:'',
+    source:'v2', page:pg.slice(0,160), campaign:'',
     score:r.score, band:r.band.k,
     seg: SEG[roleVal()] || 'general',
     roleKey:roleVal(),
@@ -557,10 +559,35 @@ function saveResponse(){
   }
 }
 
+/* map a ?role= URL value (from EmailOctopus links etc.) to an internal role key */
+function getUrlRole(){
+  try{
+    var p=new URLSearchParams(location.search).get('role');
+    if(!p) return null;
+    p=p.toLowerCase().trim();
+    var M={ security:'sec', cyber:'sec', cybersecurity:'sec', sec:'sec',
+            dev:'dev', developer:'dev', developers:'dev', software:'dev', data:'dev', engineer:'dev',
+            manager:'mgr', management:'mgr', mgr:'mgr',
+            leader:'lead', leadership:'lead', lead:'lead', director:'lead',
+            gen:'gen', general:'gen', other:'gen' };
+    return M[p]||null;
+  }catch(e){ return null; }
+}
 function start(){
   document.getElementById('intro').classList.add('hidden');
-  flow=[ROLE]; step=0; answers={}; _seen={}; _finished=false;
-  track('survey_start',{});
+  _seen={}; _finished=false; answers={}; step=0;
+  var ur=getUrlRole();
+  if(ur){
+    // targeted link (e.g. ?role=security): lock the role, skip the role question
+    var opt=null, oi=-1;
+    ROLE.opts.forEach(function(o,i){ if(o.v===ur){ opt=o; oi=i; } });
+    answers['role']={ i:oi, p:0, v:ur, t:(opt?opt.t:''), q:ROLE.title };
+    flow=[].concat(CORE, BRANCH[ur], CLOSE);
+    track('survey_start',{ role:ur, via:'url' });
+  } else {
+    flow=[ROLE];
+    track('survey_start',{});
+  }
   document.getElementById('qscreen').classList.remove('hidden');
   render();
 }
