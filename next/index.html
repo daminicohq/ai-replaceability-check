@@ -153,6 +153,7 @@ fbq('init','189815321564144');fbq('track','PageView');
 <div class="topline"><i id="topbar-fill"></i></div>
 
 <div class="wrap">
+  <p class="preview-flag">Preview &middot; v2 draft for review &middot; completed responses are saved (tagged source=v2) &middot; the live survey is untouched</p>
 
   <!-- INTRO -->
   <section id="intro">
@@ -223,6 +224,7 @@ fbq('init','189815321564144');fbq('track','PageView');
       <p id="gate-error" style="display:none; color:#b23b1e; font-size:13px; font-weight:600; margin:10px 0 0">Please enter your first name and a valid email to see what your score means.</p>
       <button class="btn block" style="margin-top:8px" onclick="submitGate()">Show me what my score means &rarr;</button>
       <p class="gate-note">We'll email your result and a short, no-pressure guide on staying relevant as AI reshapes IT roles. Unsubscribe anytime.</p>
+      <p class="gate-note" style="margin-top:6px">Your answers stay anonymous in anything we publish. We only use your name and email to send your result.</p>
     </div>
   </section>
 
@@ -530,7 +532,7 @@ function buildPayload(){
   var pg=(location.pathname+location.search)||'next';
   return {
     version:'2',
-    source:'v2', page:pg.slice(0,160), campaign:'',
+    source: em ? 'v2' : 'v2-anon', page:pg.slice(0,160), campaign:'',
     score:r.score, band:r.band.k,
     seg: SEG[roleVal()] || 'general',
     roleKey:roleVal(),
@@ -543,10 +545,8 @@ function buildPayload(){
 }
 function saveResponse(){
   if(_saved) return;
-  if(!_finished) return;        // only store people who answered every question
-  var em=(document.getElementById('email').value||'').trim();
-  if(!em) return;               // forced gate: only save real leads (email required)
-  _saved=true;
+  if(!_finished) return;        // only store people who answered every question (lead OR anonymous)
+  _saved=true;                  // blank email -> saved anonymously (source 'v2-anon'); with email -> lead ('v2')
   var body=JSON.stringify(buildPayload());
   try{
     if(navigator.sendBeacon){
