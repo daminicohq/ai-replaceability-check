@@ -231,17 +231,17 @@ fbq('init','189815321564144');fbq('track','PageView');
   }
   /* desktop: more top space so the card feels vertically centered */
   @media (min-width:561px){ #intro{ padding-top:40px; } }
-  /* mobile score screen: form visible without scrolling (smaller dial; blurred preview moves below the button) */
+  /* mobile score screen REDESIGN: form-first. small dial, blurred preview hidden, fields+button right under the score */
   @media (max-width:560px){
-    #gate .card{ display:flex; flex-direction:column; }
-    #gate .eyebrow{ order:1; }
-    #gate .gauge{ order:2; display:block; width:140px; height:140px; margin:6px auto 0; }
-    #gate .card > .rline{ order:3; }
+    #gate .card{ display:flex; flex-direction:column; padding-top:18px; }
+    #gate .eyebrow{ order:1; margin-bottom:0; }
+    #gate .gauge{ order:2; display:block; width:118px; height:118px; margin:2px auto 0; }
+    #gate .card > .rline{ order:3; margin-top:6px; }
     #gate .field{ order:4; margin-top:10px; }
     #gate #gate-error{ order:5; }
     #gate .btn{ order:6; margin-top:12px; }
-    #gate .teaser{ order:7; margin-top:20px; }
-    #gate .gate-note{ order:8; }
+    #gate .teaser{ display:none; }   /* hide blurred preview + lock entirely on mobile (the lock overlay was landing on the button) */
+    #gate .gate-note{ order:7; margin-top:14px; }
   }
 </style>
 </head>
