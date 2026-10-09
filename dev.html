@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The AI Replaceability Check</title>
+<link rel="icon" type="image/png" href="https://www.readynez.com/img/R-Icon.png">
+<link rel="apple-touch-icon" href="https://www.readynez.com/img/R-Icon.png">
 <meta name="robots" content="noindex,nofollow">
 <!-- Google Analytics (GA4) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-JJBN4T6RLV"></script>
@@ -214,6 +216,21 @@ fbq('init','189815321564144');fbq('track','PageView');
   #intro .eyebrow{ text-transform:none; font-size:15px; letter-spacing:.02em; }
   /* a little breathing room above the headline */
   #intro h1.hero{ margin-top:22px; }
+  /* mobile: Next right below the options; "why we ask" drops to the bottom */
+  @media (max-width:560px){
+    #qscreen .card{ display:flex; flex-direction:column; }
+    #qscreen .qbar{ order:1; }
+    #qscreen #qnum{ order:2; }
+    #qscreen #qtitle{ order:3; }
+    #qscreen #qhelp{ order:4; }
+    #qscreen #opts{ order:5; }
+    #qscreen #pickclosest{ order:6; }
+    #qscreen .nav{ order:7; margin-top:18px; }
+    #qscreen .divider{ display:none; }
+    #qscreen #qwhy{ order:8; margin-top:22px; }
+  }
+  /* desktop: more top space so the card feels vertically centered */
+  @media (min-width:561px){ #intro{ padding-top:40px; } }
 </style>
 </head>
 <body>
