@@ -291,24 +291,13 @@ fbq('init','189815321564144');fbq('track','PageView');
   <!-- GATE -->
   <section id="gate" class="hidden">
     <div class="card">
-      <p class="eyebrow" style="text-align:center">Your AI Replaceability score</p>
+      <p class="eyebrow" style="text-align:center">Your score is ready</p>
       <svg class="gauge" id="gate-gauge" width="190" height="190" viewBox="0 0 190 190" aria-hidden="true">
         <circle cx="95" cy="95" r="80" fill="none" stroke="#efe7dc" stroke-width="14"></circle>
-        <circle id="gate-arc" cx="95" cy="95" r="80" fill="none" stroke="#C2410C" stroke-width="14"
-          stroke-linecap="round" stroke-dasharray="502" stroke-dashoffset="502" transform="rotate(-90 95 95)"></circle>
-        <text id="gate-num" class="gauge-num" x="95" y="92" text-anchor="middle" font-size="52" fill="#1C1613">0</text>
-        <text x="95" y="118" text-anchor="middle" font-size="14" fill="#9a8f84" font-family="Public Sans, sans-serif">out of 100</text>
+        <text x="95" y="109" text-anchor="middle" font-size="52">&#128274;</text>
+        <text x="95" y="135" text-anchor="middle" font-size="13" fill="#9a8f84" font-family="Public Sans, sans-serif">Score locked</text>
       </svg>
-      <p class="rline" style="font-size:18px; margin-top:2px; text-align:center">There's your number. Enter your name and email to see what it actually means.</p>
-
-      <div class="teaser">
-        <div class="masked">
-          <div class="band" style="margin-top:6px"><span class="tag" id="gate-tag">Moderate replaceability</span></div>
-          <p class="rline" id="gate-line">You're right on the line - part of your work is safe, part of it is in reach.</p>
-          <p class="blurb" id="gate-body">A score like this means some of what you do is the kind of work AI is quickly taking over, and some of it sits where AI is still weak - the judgment calls and the problems with no template.</p>
-        </div>
-        <div class="lock"><span>&#128274;&nbsp; Enter your name and email to unlock what your score means</span></div>
-      </div>
+      <p class="rline" style="font-size:18px; margin-top:2px; text-align:center">You've answered everything. Enter your name and email below to see your AI Replaceability Score.</p>
 
       <div class="field">
         <label>First name</label>
@@ -319,9 +308,9 @@ fbq('init','189815321564144');fbq('track','PageView');
         <input id="email" type="email" autocomplete="email" placeholder="you@company.com">
       </div>
       <input id="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" placeholder="Leave this blank" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;opacity:0">
-      <p id="gate-error" style="display:none; color:#b23b1e; font-size:13px; font-weight:600; margin:10px 0 0">Please enter your first name and a valid email to see what your score means.</p>
-      <button class="btn block" style="margin-top:8px" onclick="submitGate()">Show me what my score means &rarr;</button>
-      <p class="gate-note">We'll email your result and a short, no-pressure guide on staying relevant as AI reshapes IT roles. Unsubscribe anytime.</p>
+      <p id="gate-error" style="display:none; color:#b23b1e; font-size:13px; font-weight:600; margin:10px 0 0">Please enter your first name and a valid email to see your score.</p>
+      <button class="btn block" style="margin-top:8px" onclick="submitGate()">Show me my score &rarr;</button>
+      <p class="gate-note">We'll email you your result, plus the occasional note on staying relevant as AI reshapes IT roles. Unsubscribe anytime.</p>
       <p class="gate-note" style="margin-top:6px">Your answers stay anonymous in anything we publish. We only use your name and email to send your result.</p>
     </div>
   </section>
@@ -800,16 +789,8 @@ function animateGauge(arcId,numId,score,color){
     arc.setAttribute('stroke-dashoffset', C - C*(n/100));
   },22);
 }
-/* gate: show the number, blur what it means */
-function enterGate(){
-  var r=getResult();
-  animateGauge('gate-arc','gate-num', r.score, r.band.c);
-  var tag=document.getElementById('gate-tag');
-  tag.textContent=r.band.k+' replaceability';
-  tag.style.color=r.band.c; tag.style.background=r.band.bg;
-  document.getElementById('gate-line').textContent=r.line;
-  document.getElementById('gate-body').textContent=r.body;
-}
+/* v3 flow: the score stays fully hidden until name + email are submitted */
+function enterGate(){ /* nothing to reveal here now */ }
 function submitGate(){
   var nm=(document.getElementById('fname').value||'').trim();
   var em=(document.getElementById('email').value||'').trim();
